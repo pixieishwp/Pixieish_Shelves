@@ -18,6 +18,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -33,24 +34,43 @@ const auth = getAuth(app);
 
 const ADMIN_EMAIL = "pixieishwp@gmail.com";
 
-// AUTH
+/* 🟡 SPLASH FIX */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    if (splash) splash.style.display = "none";
+
+    if (!auth.currentUser) {
+      const authScreen = document.getElementById("authScreen");
+      if (authScreen) authScreen.style.display = "flex";
+    }
+  }, 1500);
+});
+
+/* 🔐 AUTH */
 window.signup = async () => {
   try {
     await createUserWithEmailAndPassword(auth, val("email"), val("password"));
     set("authStatus", "Account created!");
-  } catch (e) { set("authStatus", e.message); }
+  } catch (e) {
+    set("authStatus", e.message);
+  }
 };
 
 window.login = async () => {
   try {
     await signInWithEmailAndPassword(auth, val("email"), val("password"));
     set("authStatus", "Logged in!");
-  } catch (e) { set("authStatus", e.message); }
+  } catch (e) {
+    set("authStatus", e.message);
+  }
 };
 
-window.logout = async () => await signOut(auth);
+window.logout = async () => {
+  await signOut(auth);
+};
 
-// ADD BOOK
+/* 📚 ADD BOOK */
 window.addBook = async () => {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) return alert("Admin only");
@@ -72,7 +92,7 @@ window.addBook = async () => {
   loadBookOptions();
 };
 
-// ADD CHAPTER
+/* 📖 ADD CHAPTER */
 window.addChapter = async () => {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) return;
@@ -88,14 +108,14 @@ window.addChapter = async () => {
   clear(["chapterTitle","chapterContent"]);
 };
 
-// DELETE BOOK
+/* 🗑 DELETE BOOK */
 window.deleteBook = async (id) => {
   if (!confirm("Delete this book?")) return;
   await deleteDoc(doc(db, "books", id));
   loadBooks();
 };
 
-// LOAD BOOKS
+/* 📚 LOAD BOOKS */
 async function loadBooks() {
   const user = auth.currentUser;
   const container = document.getElementById("yourBooks");
@@ -109,19 +129,24 @@ async function loadBooks() {
     if(data.userId===user.uid){
       container.innerHTML+=`
         <div class="book-card" onclick="openBook('${docSnap.id}')">
-          <div class="book-info">
-            <strong>${data.title}</strong>
-            <p>${data.genre} • ${data.status}</p>
-          </div>
-          ${user.email===ADMIN_EMAIL?`<button onclick="event.stopPropagation();deleteBook('${docSnap.id}')">Delete</button>`:""}
+          <strong>${data.title}</strong>
+          <p>${data.genre || ""} • ${data.status}</p>
+          <small>${data.synopsis || ""}</small>
+
+          ${user.email===ADMIN_EMAIL?`
+            <button onclick="event.stopPropagation();deleteBook('${docSnap.id}')">
+              Delete
+            </button>
+          `:""}
         </div>`;
     }
   });
 }
 
-// OPEN BOOK
+/* 📖 OPEN BOOK */
 window.openBook = async (id)=>{
-  hide("appScreen"); show("readerView");
+  hide("appScreen");
+  show("readerView");
 
   const snap = await getDocs(collection(db,"books"));
   snap.forEach(d=>{
@@ -136,7 +161,7 @@ window.openBook = async (id)=>{
   loadChapters(id);
 };
 
-// LOAD CHAPTERS
+/* 📖 LOAD CHAPTERS */
 async function loadChapters(bookId){
   const list=document.getElementById("chapterList");
   list.innerHTML="";
@@ -156,42 +181,54 @@ async function loadChapters(bookId){
   });
 }
 
-// READ CHAPTER
+/* 📖 READ CHAPTER */
 window.readChapter=(t,c)=>{
   show("chapterReader");
   setText("chapterReadTitle",t);
   setText("chapterReadContent",c);
 };
 
-// CLOSE
+/* 🔙 CLOSE READER */
 window.closeReader=()=>{
-  show("appScreen"); hide("readerView");
+  show("appScreen");
+  hide("readerView");
 };
 
-// AUTH STATE
-onAuthStateChanged(auth,user=>{
-  const writer=document.getElementById("writerMode");
-  const chapter=document.getElementById("chapterMode");
+/* 🔽 MENU */
+window.toggleMenu = () => {
+  const d = document.getElementById("dropdown");
+  d.style.display = d.style.display === "block" ? "none" : "block";
+};
 
-  if(user){
-    show("appScreen"); hide("authScreen");
+/* 🔐 AUTH STATE */
+onAuthStateChanged(auth, user => {
+  const splash = document.getElementById("splash");
+  if (splash) splash.style.display = "none";
 
-    if(user.email===ADMIN_EMAIL){
-      writer.style.display="block";
-      chapter.style.display="block";
+  const writer = document.getElementById("writerMode");
+  const chapter = document.getElementById("chapterMode");
+
+  if (user) {
+    show("appScreen");
+    hide("authScreen");
+
+    if (user.email === ADMIN_EMAIL) {
+      writer.style.display = "block";
+      chapter.style.display = "block";
       loadBookOptions();
-    }else{
-      writer.style.display="none";
-      chapter.style.display="none";
+    } else {
+      writer.style.display = "none";
+      chapter.style.display = "none";
     }
 
     loadBooks();
-  }else{
-    show("authScreen"); hide("appScreen");
+  } else {
+    show("authScreen");
+    hide("appScreen");
   }
 });
 
-// LOAD BOOK OPTIONS
+/* 📘 LOAD BOOK OPTIONS */
 async function loadBookOptions(){
   const user=auth.currentUser;
   const select=document.getElementById("bookSelect");
@@ -206,7 +243,7 @@ async function loadBookOptions(){
   });
 }
 
-// HELPERS
+/* 🧩 HELPERS */
 function val(id){return document.getElementById(id)?.value.trim()||"";}
 function set(id,txt){document.getElementById(id).innerText=txt;}
 function setText(id,txt){document.getElementById(id).innerText=txt;}
