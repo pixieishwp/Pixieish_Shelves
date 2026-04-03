@@ -5,20 +5,56 @@ body {
   color: #4A3F35;
 }
 
+/* SCREENS */
+.screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hidden {
+  display: none;
+}
+
+/* SPLASH */
+#splash {
+  background: linear-gradient(135deg, #FFF8F0, #FDE2D4);
+  text-align: center;
+}
+
+#splash h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+}
+
+#splash p {
+  color: #E8A87C;
+}
+
+/* LOGIN */
+#login {
+  align-items: center;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
 /* HEADER */
 .header {
   text-align: center;
-  padding: 40px 20px 20px;
+  padding: 20px;
   font-family: 'Playfair Display', serif;
-  font-size: 32px;
-  font-weight: 700;
 }
 
 .tagline {
-  font-size: 14px;
   color: #E8A87C;
-  margin-top: 8px;
-  font-family: 'Inter', sans-serif;
+  font-size: 14px;
 }
 
 /* CONTAINER */
@@ -28,43 +64,37 @@ body {
 
 /* CARD */
 .card {
-  background: #ffffff;
-  padding: 22px;
-  border-radius: 28px;
+  background: white;
+  padding: 20px;
+  border-radius: 25px;
   margin-bottom: 20px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
-/* BOOK CARD */
+/* BOOK */
 .book-card {
   display: flex;
   gap: 15px;
   align-items: center;
-  margin-top: 10px;
 }
 
 .book-cover {
-  width: 65px;
-  height: 90px;
-  border-radius: 12px;
+  width: 60px;
+  height: 80px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #F6C7A7, #E8A87C);
 }
 
-.book-info strong {
-  font-size: 16px;
-}
-
-/* PROGRESS */
 .progress {
   height: 6px;
   background: #eee;
   border-radius: 10px;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .progress-bar {
   height: 6px;
-  width: 45%;
+  width: 40%;
   background: #E8A87C;
   border-radius: 10px;
 }
@@ -76,25 +106,8 @@ button {
   padding: 14px;
   border-radius: 20px;
   width: 100%;
-  color: #fff;
-  font-weight: 500;
+  color: white;
   margin-top: 15px;
-  font-size: 14px;
-}
-
-/* READER */
-#reader {
-  padding: 20px;
-}
-
-#text {
-  line-height: 1.9;
-  font-size: 16px;
-}
-
-/* HIDDEN */
-.hidden {
-  display: none;
 }
 
 /* HIGHLIGHT */
