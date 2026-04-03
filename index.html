@@ -10,26 +10,24 @@
 
 <body>
 
-<!-- 🌸 SPLASH -->
+<!-- SPLASH -->
 <div id="splash" class="screen">
   <h1>Pixieish Shelves</h1>
   <p>Your whimsical cozy-world for reading</p>
 </div>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div id="login" class="screen hidden">
   <div class="card">
     <h2>Welcome</h2>
-
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
-
     <button onclick="login()">Login</button>
     <button onclick="signUp()">Sign Up</button>
   </div>
 </div>
 
-<!-- 🏠 HOME -->
+<!-- HOME -->
 <div id="home" class="screen hidden">
 
   <div class="header">
@@ -39,34 +37,27 @@
 
   <div class="container" id="mainContainer">
 
-    <!-- Continue Reading -->
-    <div class="card">
-      <h3>Continue Reading</h3>
-
-      <div class="book-card">
-        <div class="book-cover"></div>
-
-        <div class="book-info">
-          <strong>What Was Never Enough</strong>
-        </div>
-      </div>
-
-      <button onclick="openReader()">Continue Reading</button>
+    <!-- WRITER PANEL -->
+    <div id="writerPanel" class="card hidden">
+      <h3>👑 Writer Mode</h3>
+      <button onclick="publishBook()">Publish Book</button>
     </div>
 
-    <!-- Add Book -->
+    <!-- ADD BOOK -->
     <div class="card">
       <h3>Add to Library</h3>
       <p>Save this story to your shelves</p>
       <button onclick="addBook()">Add Book</button>
     </div>
 
+    <!-- LIBRARY -->
+    <div id="librarySection"></div>
+
   </div>
 </div>
 
-<!-- 📖 READER -->
+<!-- READER -->
 <div id="reader" class="screen hidden">
-
   <div class="header">
     <button onclick="goBack()">← Back</button>
   </div>
@@ -75,13 +66,11 @@
     <div class="card">
       <h2>Simula</h2>
       <p id="text">
-        What was never enough? Maybe it was the silence, or the things left unsaid.
+        What was never enough? Maybe it was the silence...
       </p>
-
       <button onclick="highlight()">Highlight</button>
     </div>
   </div>
-
 </div>
 
 <script type="module">
@@ -91,15 +80,13 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
   storageBucket: "pixieish-shelves.firebasestorage.app",
   messagingSenderId: "458160398514",
-  appId: "1:458160398514:web:b8bd9d073d5823575b29ab",
-  measurementId: "G-5K5L5N9X8B"
+  appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -113,11 +100,10 @@ window.signUp = function() {
 
   createUserWithEmailAndPassword(auth, email, pass)
     .then(() => {
-      alert("Account created 💖");
       showScreen("home");
+      checkWriter(email);
       loadBooks();
-    })
-    .catch(err => alert(err.message));
+    });
 };
 
 // LOGIN
@@ -127,39 +113,52 @@ window.login = function() {
 
   signInWithEmailAndPassword(auth, email, pass)
     .then(() => {
-      alert("Welcome back 💖");
       showScreen("home");
+      checkWriter(email);
       loadBooks();
-    })
-    .catch(err => alert(err.message));
+    });
 };
 
-// ADD BOOK
+// WRITER CHECK
+function checkWriter(email) {
+  if (email === "pixieishwp@gmail.com") {
+    document.getElementById("writerPanel").classList.remove("hidden");
+  }
+}
+
+// ADD BOOK (READER)
 window.addBook = async function() {
   const user = auth.currentUser;
-
-  if (!user) {
-    alert("Login first 😢");
-    return;
-  }
 
   await addDoc(collection(db, "books"), {
     title: "What Was Never Enough",
     userId: user.uid
   });
 
-  alert("Book saved 💖");
+  alert("Added to library 💖");
+  loadBooks();
 };
 
-// LOAD BOOKS (REAL UI)
-window.loadBooks = async function() {
+// PUBLISH BOOK (WRITER)
+window.publishBook = async function() {
   const user = auth.currentUser;
 
+  await addDoc(collection(db, "books"), {
+    title: "New Story by Admin ✨",
+    userId: user.uid
+  });
+
+  alert("Story published ✨");
+  loadBooks();
+};
+
+// LOAD BOOKS (FIXED ❗)
+window.loadBooks = async function() {
+  const user = auth.currentUser;
   if (!user) return;
 
   const querySnapshot = await getDocs(collection(db, "books"));
-
-  const container = document.getElementById("mainContainer");
+  const library = document.getElementById("librarySection");
 
   let html = `
     <div class="card">
@@ -183,16 +182,16 @@ window.loadBooks = async function() {
 
   html += `</div>`;
 
-  container.innerHTML += html;
+  // ✅ THIS IS THE FIX (NO MORE DUPLICATES)
+  library.innerHTML = html;
 };
 
-// FLOW
-setTimeout(() => {
-  showScreen("login");
-}, 2000);
+// UI FLOW
+setTimeout(() => showScreen("login"), 2000);
 
-function openReader() {
-  showScreen("reader");
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
 }
 
 function goBack() {
@@ -201,11 +200,6 @@ function goBack() {
 
 function highlight() {
   document.getElementById("text").classList.toggle("highlight");
-}
-
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
 }
 </script>
 
