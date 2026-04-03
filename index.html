@@ -4,7 +4,7 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FONTS -->
+  <!-- 🌸 FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
@@ -12,13 +12,13 @@
 
 <body>
 
-<!-- 🌸 SPLASH -->
+<!-- 🌸 SPLASH SCREEN -->
 <div id="splash">
   <h1 class="splash-title">Pixieish Shelves</h1>
   <p class="splash-tagline">your whimsical cozy-world for reading</p>
 </div>
 
-<!-- 🔐 LOGIN -->
+<!-- 🔐 AUTH SCREEN -->
 <div id="authScreen" class="container">
   <div class="card">
     <h2 style="text-align:center;">Pixieish Shelves</h2>
@@ -34,7 +34,7 @@
   </div>
 </div>
 
-<!-- 📚 APP -->
+<!-- 📚 MAIN APP -->
 <div id="appScreen" style="display:none;">
 
   <div class="header">
@@ -46,14 +46,27 @@
 
     <button onclick="logout()">Logout</button>
 
-    <!-- ✍️ WRITER MODE (LOCKED) -->
+    <!-- ✍️ WRITER MODE (ADMIN ONLY) -->
     <div class="card" id="writerMode">
       <h3>Writer Mode</h3>
 
-      <input id="title" placeholder="Enter your book title..." />
-      <textarea id="content" placeholder="Start writing your story..."></textarea>
+      <input id="title" placeholder="Book title..." />
+
+      <textarea id="synopsis" placeholder="Write a short synopsis..."></textarea>
+
+      <input id="genre" placeholder="Genre (e.g. Romance, Fantasy)" />
+
+      <input id="series" placeholder="Series (leave blank if standalone)" />
+
+      <select id="statusSelect">
+        <option value="ongoing">Ongoing</option>
+        <option value="completed">Completed</option>
+      </select>
+
+      <textarea id="content" placeholder="Start writing Chapter 1..."></textarea>
 
       <button onclick="addBook()">Publish Book</button>
+
       <p id="status"></p>
     </div>
 
