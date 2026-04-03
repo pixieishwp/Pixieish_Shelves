@@ -16,7 +16,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔑 FIREBASE CONFIG
+// 🔑 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -26,12 +26,14 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-// 🚀 INIT
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔐 SIGN UP (WITH LOADING FEEDBACK)
+// 🔐 ADMIN EMAIL
+const ADMIN_EMAIL = "pixieishwp@gmail.com";
+
+// 🔐 SIGN UP
 window.signup = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -47,7 +49,7 @@ window.signup = async function () {
   }
 };
 
-// 🔐 LOGIN (WITH LOADING FEEDBACK)
+// 🔐 LOGIN
 window.login = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -68,13 +70,19 @@ window.logout = async function () {
   await signOut(auth);
 };
 
-// ✍️ ADD BOOK
+// ✍️ ADD BOOK (ADMIN ONLY)
 window.addBook = async function () {
   const user = auth.currentUser;
   const status = document.getElementById("status");
 
   if (!user) {
-    alert("Please login first.");
+    alert("Login first");
+    return;
+  }
+
+  // 🚫 BLOCK NON-ADMIN
+  if (user.email !== ADMIN_EMAIL) {
+    alert("Only admin can publish books.");
     return;
   }
 
@@ -82,31 +90,26 @@ window.addBook = async function () {
   const content = document.getElementById("content").value.trim();
 
   if (!title || !content) {
-    status.innerText = "Please complete your story.";
+    status.innerText = "Complete your story";
     return;
   }
 
-  try {
-    await addDoc(collection(db, "books"), {
-      title,
-      content,
-      userId: user.uid,
-      createdAt: Date.now()
-    });
+  await addDoc(collection(db, "books"), {
+    title,
+    content,
+    userId: user.uid,
+    createdAt: Date.now()
+  });
 
-    status.innerText = "Book published successfully.";
+  status.innerText = "Book published";
 
-    document.getElementById("title").value = "";
-    document.getElementById("content").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("content").value = "";
 
-    loadBooks();
-  } catch (error) {
-    status.innerText = "Error publishing book.";
-    console.error(error);
-  }
+  loadBooks();
 };
 
-// 📚 LOAD BOOKS (NO DUPLICATION)
+// 📚 LOAD BOOKS
 async function loadBooks() {
   const user = auth.currentUser;
   if (!user) return;
@@ -114,47 +117,56 @@ async function loadBooks() {
   const container = document.getElementById("yourBooks");
   container.innerHTML = "";
 
-  try {
-    const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
+  const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
 
-    let hasBooks = false;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-
-      if (data.userId === user.uid) {
-        hasBooks = true;
-
-        container.insertAdjacentHTML("beforeend", `
-          <div class="book-card">
-            <div class="book-cover"></div>
-            <div class="book-info">
-              <strong>${data.title}</strong>
-              <p>Saved in your library</p>
-            </div>
+    if (data.userId === user.uid) {
+      container.innerHTML += `
+        <div class="book-card">
+          <div class="book-cover"></div>
+          <div class="book-info">
+            <strong>${data.title}</strong>
+            <p>Saved in your library</p>
           </div>
-        `);
-      }
-    });
-
-    if (!hasBooks) {
-      container.innerHTML = "<p>No books yet. Start writing.</p>";
+        </div>
+      `;
     }
-
-  } catch (error) {
-    console.error(error);
-  }
+  });
 }
 
-// 👀 AUTH STATE (AUTO SWITCH SCREEN)
+// 👀 AUTH STATE
 onAuthStateChanged(auth, (user) => {
+  const writerCard = document.querySelector(".card"); // writer mode card
+
   if (user) {
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
+
+    // 🔒 HIDE WRITER MODE IF NOT ADMIN
+    if (user.email !== ADMIN_EMAIL) {
+      writerCard.style.display = "none";
+    } else {
+      writerCard.style.display = "block";
+    }
+
     loadBooks();
   } else {
     document.getElementById("authScreen").style.display = "block";
     document.getElementById("appScreen").style.display = "none";
   }
+});
+
+// 🌸 SPLASH
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    splash.style.opacity = "0";
+
+    setTimeout(() => {
+      splash.style.display = "none";
+    }, 800);
+  }, 1800);
 });
