@@ -4,9 +4,7 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,23 +12,20 @@
 
 <!-- 🌸 SPLASH -->
 <div id="splash">
-  <div class="splash-title">Pixieish Shelves</div>
-  <div class="splash-tagline">your cozy reading world ✨</div>
+  <h1 class="splash-title">Pixieish Shelves</h1>
+  <p class="splash-tagline">your cozy reading world ✨</p>
 </div>
 
 <!-- 🔐 AUTH -->
 <div id="authScreen" class="auth">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
-
   <button onclick="login()">Login</button>
   <button onclick="signup()">Sign Up</button>
-
-  <p id="authStatus"></p>
 </div>
 
 <!-- 📱 APP -->
-<div id="appScreen" style="display:none;">
+<div id="appScreen">
 
   <div class="header">
     PIXIEISH SHELVES
@@ -46,33 +41,15 @@
 
   <div class="container">
 
-    <!-- ✍️ WRITER -->
-    <div id="writerMode" class="card" style="display:none;">
+    <div id="writerMode" class="card">
       <h3>Create Story</h3>
-
       <input id="title" placeholder="Title">
       <textarea id="synopsis" placeholder="Synopsis"></textarea>
-
       <input id="genre" placeholder="Genre">
-      <input id="series" placeholder="Series">
-
-      <select id="statusSelect">
-        <option value="ongoing">Ongoing</option>
-        <option value="completed">Completed</option>
-      </select>
-
       <input id="coverURL" placeholder="Cover URL">
-      <textarea id="content" placeholder="Start writing..."></textarea>
-
-      <label>
-        <input type="checkbox" id="publishBook"> Publish Book
-      </label>
-
       <button onclick="addBook()">Save Book</button>
-      <p id="status"></p>
     </div>
 
-    <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Library</h3>
       <div id="yourBooks"></div>
@@ -81,33 +58,22 @@
   </div>
 </div>
 
-<!-- 📖 READER VIEW -->
-<div id="readerView" style="display:none;" class="reader">
+<!-- 📖 READER -->
+<div id="readerView" class="reader">
+  <button onclick="closeReader()">← Back</button>
 
-  <button onclick="closeReader()" class="back-btn">← Back</button>
+  <img id="readCover">
+  <h2 id="readTitle"></h2>
+  <p id="readMeta"></p>
+  <p id="readSynopsis"></p>
 
-  <div class="reader-header">
-    <img id="readCover" class="reader-cover">
-    <h2 id="readTitle"></h2>
-    <p id="readMeta"></p>
-    <p id="readSynopsis"></p>
-  </div>
+  <div id="chapterList"></div>
 
-  <div id="chapterList" class="chapter-list"></div>
-
-  <!-- ✍️ ADD CHAPTER -->
-  <div id="readerAddChapter" style="display:none;" class="card">
-    <h3>Add Chapter</h3>
+  <div id="readerAddChapter">
     <input id="chapterTitle" placeholder="Chapter title">
     <textarea id="chapterContent"></textarea>
-
-    <label>
-      <input type="checkbox" id="publishChapter"> Publish
-    </label>
-
     <button onclick="addChapterFromReader()">Add Chapter</button>
   </div>
-
 </div>
 
 <script type="module" src="app.js"></script>
