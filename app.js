@@ -28,47 +28,42 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔒 ADMIN EMAIL
 const ADMIN_EMAIL = "pixieishwp@gmail.com";
 
-// 🔐 SIGNUP
+// 🔐 AUTH
 window.signup = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const status = document.getElementById("authStatus");
+  const email = emailEl().value;
+  const password = passwordEl().value;
+  const status = authStatus();
 
   status.innerText = "Creating account...";
-
   try {
     await createUserWithEmailAndPassword(auth, email, password);
     status.innerText = "Account created!";
-  } catch (error) {
-    status.innerText = error.message;
+  } catch (e) {
+    status.innerText = e.message;
   }
 };
 
-// 🔐 LOGIN
 window.login = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const status = document.getElementById("authStatus");
+  const email = emailEl().value;
+  const password = passwordEl().value;
+  const status = authStatus();
 
   status.innerText = "Logging in...";
-
   try {
     await signInWithEmailAndPassword(auth, email, password);
     status.innerText = "Success!";
-  } catch (error) {
-    status.innerText = error.message;
+  } catch (e) {
+    status.innerText = e.message;
   }
 };
 
-// 🔐 LOGOUT
 window.logout = async function () {
   await signOut(auth);
 };
 
-// ✍️ ADD BOOK (ADMIN ONLY)
+// ✍️ ADD BOOK (UPDATED)
 window.addBook = async function () {
   const user = auth.currentUser;
   const status = document.getElementById("status");
@@ -80,16 +75,25 @@ window.addBook = async function () {
     return;
   }
 
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
+  // 🆕 NEW FIELDS
+  const title = getVal("title");
+  const synopsis = getVal("synopsis");
+  const genre = getVal("genre");
+  const series = getVal("series");
+  const statusBook = document.getElementById("statusSelect").value;
+  const content = getVal("content");
 
   if (!title || !content) {
-    status.innerText = "Complete your story.";
+    status.innerText = "Title & story required.";
     return;
   }
 
   await addDoc(collection(db, "books"), {
     title,
+    synopsis,
+    genre,
+    series,
+    status: statusBook,
     content,
     userId: user.uid,
     createdAt: Date.now()
@@ -97,13 +101,12 @@ window.addBook = async function () {
 
   status.innerText = "Book published.";
 
-  document.getElementById("title").value = "";
-  document.getElementById("content").value = "";
+  clearFields();
 
   loadBooks();
 };
 
-// 📚 LOAD BOOKS
+// 📚 LOAD BOOKS (UPDATED DISPLAY)
 async function loadBooks() {
   const user = auth.currentUser;
   if (!user) return;
@@ -118,15 +121,16 @@ async function loadBooks() {
     const data = doc.data();
 
     if (data.userId === user.uid) {
-      container.innerHTML += `
+      container.insertAdjacentHTML("beforeend", `
         <div class="book-card">
           <div class="book-cover"></div>
           <div class="book-info">
             <strong>${data.title}</strong>
-            <p>Saved in your library</p>
+            <p>${data.genre || "No genre"} • ${data.status}</p>
+            <p style="font-size:12px;">${data.synopsis || ""}</p>
           </div>
         </div>
-      `;
+      `);
     }
   });
 }
@@ -136,19 +140,16 @@ onAuthStateChanged(auth, (user) => {
   const writer = document.getElementById("writerMode");
 
   if (user) {
-    document.getElementById("authScreen").style.display = "none";
-    document.getElementById("appScreen").style.display = "block";
+    show("appScreen");
+    hide("authScreen");
 
-    if (user.email === ADMIN_EMAIL) {
-      writer.style.display = "block";
-    } else {
-      writer.style.display = "none";
-    }
+    writer.style.display =
+      user.email === ADMIN_EMAIL ? "block" : "none";
 
     loadBooks();
   } else {
-    document.getElementById("authScreen").style.display = "block";
-    document.getElementById("appScreen").style.display = "none";
+    show("authScreen");
+    hide("appScreen");
   }
 });
 
@@ -157,9 +158,22 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     const splash = document.getElementById("splash");
     splash.style.opacity = "0";
-
-    setTimeout(() => {
-      splash.style.display = "none";
-    }, 800);
+    setTimeout(() => splash.style.display = "none", 800);
   }, 1800);
 });
+
+// 🧰 HELPERS
+function getVal(id) {
+  return document.getElementById(id)?.value.trim() || "";
+}
+function clearFields() {
+  ["title","synopsis","genre","series","content"].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+}
+function emailEl(){ return document.getElementById("email"); }
+function passwordEl(){ return document.getElementById("password"); }
+function authStatus(){ return document.getElementById("authStatus"); }
+function show(id){ document.getElementById(id).style.display = "block"; }
+function hide(id){ document.getElementById(id).style.display = "none"; }
