@@ -4,15 +4,32 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- HOME SCREEN -->
-<div id="home">
+<!-- 🌸 SPLASH SCREEN -->
+<div id="splash" class="screen active">
+  <h1>Pixieish Shelves</h1>
+  <p>Your whimsical cozy-world for reading</p>
+</div>
+
+<!-- 🔐 LOGIN SCREEN -->
+<div id="login" class="screen hidden">
+  <div class="card">
+    <h2>Welcome Back</h2>
+    <input type="text" placeholder="Username">
+    <input type="password" placeholder="Password">
+    <button onclick="enterApp()">Enter</button>
+  </div>
+</div>
+
+<!-- 🏠 HOME -->
+<div id="home" class="screen hidden">
 
   <div class="header">
     Pixieish Shelves
@@ -21,13 +38,11 @@
 
   <div class="container">
 
-    <!-- Continue Reading -->
     <div class="card">
       <h3>Continue Reading</h3>
 
       <div class="book-card">
         <div class="book-cover"></div>
-
         <div class="book-info">
           <strong>What Was Never Enough</strong>
           <div class="progress">
@@ -39,7 +54,6 @@
       <button onclick="openReader()">Continue Reading</button>
     </div>
 
-    <!-- Library -->
     <div class="card">
       <h3>My Library</h3>
       <p>Your cozy collection of stories</p>
@@ -47,11 +61,10 @@
     </div>
 
   </div>
-
 </div>
 
-<!-- READER SCREEN -->
-<div id="reader" class="hidden">
+<!-- 📖 READER -->
+<div id="reader" class="screen hidden">
 
   <div class="header">
     <button onclick="goBack()">← Back</button>
@@ -71,18 +84,37 @@
 </div>
 
 <script>
+// 🌸 Splash → Login
+setTimeout(() => {
+  showScreen("login");
+}, 2000);
+
+// 🔐 Enter app
+function enterApp() {
+  showScreen("home");
+}
+
+// 📖 Open reader
 function openReader() {
-  document.getElementById("home").style.display = "none";
-  document.getElementById("reader").classList.remove("hidden");
+  showScreen("reader");
 }
 
+// 🔙 Back
 function goBack() {
-  document.getElementById("home").style.display = "block";
-  document.getElementById("reader").classList.add("hidden");
+  showScreen("home");
 }
 
+// ✨ Highlight
 function highlight() {
   document.getElementById("text").classList.toggle("highlight");
+}
+
+// 🔄 Screen switcher
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
 }
 </script>
 
