@@ -1,7 +1,8 @@
+/* 🌸 BASE */
 body {
   margin: 0;
   font-family: 'Georgia', serif;
-  background: #FFF8F0;
+  background: #FFF8F0; /* ivory */
   color: #4A3F35;
 }
 
@@ -15,7 +16,8 @@ body {
 
 .tagline {
   font-size: 14px;
-  color: #E8A87C;
+  color: #E8A87C; /* pastel peach */
+  margin-top: 5px;
 }
 
 /* CONTAINER */
@@ -32,7 +34,24 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
-/* BOOK */
+/* INPUTS (WRITER MODE) */
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  font-family: 'Georgia', serif;
+  outline: none;
+}
+
+/* TEXTAREA */
+textarea {
+  height: 120px;
+  resize: none;
+}
+
+/* BOOK DISPLAY */
 .book-card {
   display: flex;
   gap: 15px;
@@ -61,4 +80,20 @@ button {
   color: #fff;
   font-weight: bold;
   margin-top: 10px;
+  cursor: pointer;
+}
+
+/* BUTTON HOVER (OPTIONAL NICE EFFECT) */
+button:hover {
+  opacity: 0.9;
+}
+
+/* LIBRARY CARD TEXT */
+.card h4 {
+  margin: 0;
+}
+
+.card p {
+  margin-top: 5px;
+  font-size: 14px;
 }
