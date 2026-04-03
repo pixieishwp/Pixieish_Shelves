@@ -3,6 +3,7 @@
 <head>
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -15,18 +16,24 @@
 
 <div class="container">
 
-  <!-- WRITER MODE -->
+  <!-- ✍️ WRITER MODE -->
   <div class="card">
-    <h3>Writer Mode</h3>
+    <h3>✍️ Writer Mode</h3>
 
-    <input id="bookTitle" placeholder="Enter book title..." />
-    <textarea id="bookContent" placeholder="Start writing your story..."></textarea>
+    <input id="title" placeholder="Enter your book title..." />
+
+    <textarea id="content" placeholder="Start writing your story..."></textarea>
 
     <button onclick="addBook()">Publish Book</button>
+
+    <p id="status"></p>
   </div>
 
-  <!-- LIBRARY -->
-  <div id="library"></div>
+  <!-- 📚 YOUR STORIES -->
+  <div class="card">
+    <h3>📚 Your Stories</h3>
+    <div id="yourBooks"></div>
+  </div>
 
 </div>
 
