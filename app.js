@@ -24,7 +24,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.appspot.com", // ✅ FIXED
+  storageBucket: "pixieish-shelves.appspot.com",
   messagingSenderId: "458160398514",
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
@@ -241,7 +241,7 @@ async function loadBookOptions() {
   });
 }
 
-/* 🔐 AUTH STATE */
+/* 🔐 AUTH STATE (🌸 FIXED SPLASH) */
 onAuthStateChanged(auth, user => {
   const splash = document.getElementById("splash");
   const authScreen = document.getElementById("authScreen");
@@ -250,7 +250,13 @@ onAuthStateChanged(auth, user => {
   const writer = document.getElementById("writerMode");
   const chapter = document.getElementById("chapterMode");
 
-  if (splash) splash.style.display = "none";
+  // 🌸 Smooth fade
+  if (splash) {
+    splash.style.opacity = "0";
+    setTimeout(() => {
+      splash.style.display = "none";
+    }, 800);
+  }
 
   if (user) {
     authScreen.style.display = "none";
