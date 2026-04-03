@@ -1,4 +1,3 @@
-// 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
   getAuth, 
@@ -14,7 +13,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// 🔐 YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -24,83 +22,86 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-
-// 🚀 INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// 🔑 AUTO LOGIN (so no signup yet)
+// AUTO LOGIN
 signInAnonymously(auth);
 
 
-// 👤 AUTH CHECK
+// AUTH STATE
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadBooks();
-  }
+  if (user) loadBooks();
 });
 
 
-// ✍️ ADD BOOK
+// 🚫 ADD BOOK WITH DUPLICATE CHECK
 window.addBook = async function () {
-  const user = auth.currentUser;
+  const title = document.getElementById("bookTitle").value;
+  const content = document.getElementById("bookContent").value;
 
-  if (!user) {
-    alert("Not logged in");
+  const user = auth.currentUser;
+  if (!user) return;
+
+  if (!title) {
+    alert("Title required!");
     return;
   }
 
-  const title = prompt("Enter book title:");
+  const querySnapshot = await getDocs(collection(db, "books"));
 
-  if (!title) return;
+  let exists = false;
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.title === title && data.userId === user.uid) {
+      exists = true;
+    }
+  });
+
+  if (exists) {
+    alert("Book already exists!");
+    return;
+  }
 
   await addDoc(collection(db, "books"), {
     title: title,
+    content: content,
     userId: user.uid
   });
 
-  alert("Book added!");
+  alert("Book published!");
+
+  document.getElementById("bookTitle").value = "";
+  document.getElementById("bookContent").value = "";
 
   loadBooks();
 };
 
 
-// 📚 LOAD BOOKS (NO DUPLICATES)
+// 📚 LOAD BOOKS CLEAN
 window.loadBooks = async function () {
   const user = auth.currentUser;
   if (!user) return;
 
-  const container = document.querySelector(".container");
+  const container = document.getElementById("library");
 
-  // CLEAR UI FIRST
-  container.innerHTML = `
-    <div class="card">
-      <h3>My Library</h3>
-      <p>Your cozy collection of stories</p>
-      <button onclick="addBook()">Add Book</button>
-    </div>
-  `;
+  container.innerHTML = "";
 
   const querySnapshot = await getDocs(collection(db, "books"));
-
-  let html = "";
 
   querySnapshot.forEach((doc) => {
     const data = doc.data();
 
     if (data.userId === user.uid) {
-      html += `
-        <div class="book-card">
-          <div class="book-cover"></div>
-          <div class="book-info">
-            <strong>${data.title}</strong>
-          </div>
+      container.innerHTML += `
+        <div class="card">
+          <h4>${data.title}</h4>
+          <p>${data.content.substring(0, 80)}...</p>
         </div>
       `;
     }
   });
-
-  container.innerHTML += html;
 };
