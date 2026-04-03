@@ -5,30 +5,37 @@ body {
   color: #4A3F35;
 }
 
+/* HEADER */
 .header {
   text-align: center;
-  padding: 30px 20px 10px;
+  padding: 25px 20px 10px;
   font-size: 28px;
-  font-weight: bold;
+  font-family: 'DM Serif Display', serif;
+  letter-spacing: 1.5px;
 }
 
 .tagline {
   font-size: 14px;
   color: #E8A87C;
+  font-family: 'Crimson Text', serif;
+  margin-top: 5px;
 }
 
+/* CONTAINER */
 .container {
   padding: 20px;
 }
 
+/* CARD */
 .card {
   background: #ffffff;
-  padding: 20px;
-  border-radius: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  padding: 18px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
 }
 
+/* INPUT */
 input, textarea {
   width: 100%;
   padding: 12px;
@@ -36,12 +43,16 @@ input, textarea {
   border-radius: 12px;
   border: 1px solid #eee;
   font-family: 'Georgia', serif;
+  outline: none;
 }
 
 textarea {
-  height: 120px;
+  height: 140px;
+  resize: none;
+  line-height: 1.6;
 }
 
+/* BUTTON */
 button {
   background: linear-gradient(135deg, #F6C7A7, #E8A87C);
   border: none;
@@ -50,30 +61,50 @@ button {
   width: 100%;
   color: #fff;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 12px;
   cursor: pointer;
 }
 
+/* STATUS */
 #status {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 13px;
   color: #E8A87C;
 }
 
-.book-card {
-  display: flex;
-  gap: 15px;
-  align-items: center;
+/* BOOK LIST */
+#yourBooks {
   margin-top: 10px;
 }
 
+/* BOOK CARD */
+.book-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #fff8f3;
+}
+
 .book-cover {
-  width: 60px;
-  height: 80px;
-  border-radius: 10px;
+  width: 55px;
+  height: 75px;
+  border-radius: 8px;
   background: #F6C7A7;
 }
 
 .book-info {
   flex: 1;
+}
+
+.book-info strong {
+  font-size: 15px;
+}
+
+.book-info p {
+  font-size: 12px;
+  margin: 3px 0 0;
+  color: #9c8b7d;
 }
