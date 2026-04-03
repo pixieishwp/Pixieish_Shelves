@@ -19,7 +19,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* 🔥 CONFIG */
+/* 🔥 CORRECT FIREBASE CONFIG (FIXED) */
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -59,7 +59,7 @@ window.logout = async () => {
   await signOut(auth);
 };
 
-/* 📚 ADD BOOK (UPDATED) */
+/* 📚 ADD BOOK */
 window.addBook = async () => {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) return alert("Admin only");
@@ -71,8 +71,8 @@ window.addBook = async () => {
     series: val("series"),
     status: document.getElementById("statusSelect").value,
     content: val("content"),
-    cover: val("coverURL"), // ✅ NEW
-    published: document.getElementById("publishBook").checked, // ✅ NEW
+    cover: val("coverURL"),
+    published: document.getElementById("publishBook").checked,
     userId: user.uid,
     createdAt: Date.now()
   });
@@ -84,7 +84,7 @@ window.addBook = async () => {
   loadBookOptions();
 };
 
-/* 📖 ADD CHAPTER (UPDATED) */
+/* 📖 ADD CHAPTER */
 window.addChapter = async () => {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) return;
@@ -117,7 +117,7 @@ window.deleteBook = async (id) => {
   loadBooks();
 };
 
-/* 📚 LOAD BOOKS (OPTIMIZED) */
+/* 📚 LOAD BOOKS */
 async function loadBooks() {
   const user = auth.currentUser;
   const container = document.getElementById("yourBooks");
@@ -134,7 +134,6 @@ async function loadBooks() {
   snap.forEach(docSnap => {
     const data = docSnap.data();
 
-    // ✅ Show published OR own books
     if (data.published || data.userId === user.uid) {
       html += `
         <div class="book-card" onclick="openBook('${docSnap.id}')">
@@ -175,7 +174,6 @@ async function loadChapters(bookId) {
   snap.forEach(d => {
     const data = d.data();
 
-    // ✅ Hide unpublished from readers
     if (!data.published && auth.currentUser.email !== ADMIN_EMAIL) return;
 
     html += `
@@ -305,4 +303,4 @@ function show(id) {
 function hide(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = "none";
-    }
+              }
