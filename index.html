@@ -47,9 +47,6 @@
 
         <div class="book-info">
           <strong>What Was Never Enough</strong>
-          <div class="progress">
-            <div class="progress-bar"></div>
-          </div>
         </div>
       </div>
 
@@ -59,7 +56,7 @@
     <div class="card">
       <h3>My Library</h3>
       <p>Your cozy collection of stories</p>
-      <button>Add Book</button>
+      <button onclick="addBook()">Add Book</button>
     </div>
 
   </div>
@@ -89,8 +86,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ✅ YOUR FIREBASE CONFIG (ALREADY FIXED)
+// 🔥 YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -103,6 +102,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // SIGN UP
 window.signUp = function() {
@@ -113,6 +113,7 @@ window.signUp = function() {
     .then(() => {
       alert("Account created 💖");
       showScreen("home");
+      loadBooks();
     })
     .catch(err => alert(err.message));
 };
@@ -126,8 +127,43 @@ window.login = function() {
     .then(() => {
       alert("Welcome back 💖");
       showScreen("home");
+      loadBooks();
     })
     .catch(err => alert(err.message));
+};
+
+// SAVE BOOK
+window.addBook = async function() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Login first 😢");
+    return;
+  }
+
+  await addDoc(collection(db, "books"), {
+    title: "What Was Never Enough",
+    userId: user.uid
+  });
+
+  alert("Book saved 💖");
+};
+
+// LOAD BOOKS (simple alert version)
+window.loadBooks = async function() {
+  const user = auth.currentUser;
+
+  if (!user) return;
+
+  const querySnapshot = await getDocs(collection(db, "books"));
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+
+    if (data.userId === user.uid) {
+      alert("Your book: " + data.title);
+    }
+  });
 };
 
 // APP FLOW
