@@ -4,7 +4,7 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🌸 FONTS -->
+  <!-- FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
@@ -12,29 +12,54 @@
 
 <body>
 
-<div class="header">
-  PIXIEISH SHELVES
-  <p class="tagline">your whimsical cozy-world for reading</p>
-</div>
+<!-- 🔐 LOGIN SCREEN -->
+<div id="authScreen" class="container">
 
-<div class="container">
-
-  <!-- WRITER MODE -->
   <div class="card">
-    <h3>Writer Mode</h3>
+    <h2 style="text-align:center;">Pixieish Shelves</h2>
+    <p class="tagline" style="text-align:center;">your whimsical cozy-world for reading</p>
 
-    <input id="title" placeholder="Enter your book title..." />
-    <textarea id="content" placeholder="Start writing your story..."></textarea>
+    <input id="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
 
-    <button onclick="addBook()">Publish Book</button>
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Log In</button>
 
-    <p id="status"></p>
+    <p id="authStatus"></p>
   </div>
 
-  <!-- YOUR STORIES -->
-  <div class="card">
-    <h3>Your Stories</h3>
-    <div id="yourBooks"></div>
+</div>
+
+<!-- 📚 MAIN APP -->
+<div id="appScreen" style="display:none;">
+
+  <div class="header">
+    Pixieish Shelves
+    <p class="tagline">your whimsical cozy-world for reading</p>
+  </div>
+
+  <div class="container">
+
+    <!-- LOGOUT -->
+    <button onclick="logout()">Logout</button>
+
+    <!-- WRITER -->
+    <div class="card">
+      <h3>Writer Mode</h3>
+
+      <input id="title" placeholder="Enter your book title..." />
+      <textarea id="content" placeholder="Start writing your story..."></textarea>
+
+      <button onclick="addBook()">Publish Book</button>
+      <p id="status"></p>
+    </div>
+
+    <!-- LIBRARY -->
+    <div class="card">
+      <h3>Your Stories</h3>
+      <div id="yourBooks"></div>
+    </div>
+
   </div>
 
 </div>
