@@ -4,8 +4,8 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🌸 FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Holtwood+One+SC&family=Crimson+Text&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,66 +13,74 @@
 <body>
 
 <!-- 🌸 SPLASH -->
-<div id="splash">
-  <h1 class="splash-title">Pixieish Shelves</h1>
-  <p class="splash-tagline">your whimsical cozy-world for reading</p>
-</div>
+<div id="splash">Pixieish Shelves</div>
 
 <!-- 🔐 AUTH -->
-<div id="authScreen" class="container">
-  <div class="card">
-    <h2 style="text-align:center;">Pixieish Shelves</h2>
-    <p class="tagline" style="text-align:center;">your whimsical cozy-world for reading</p>
+<div id="authScreen" class="auth">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <button onclick="signup()">Sign Up</button>
 
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Log In</button>
-
-    <p id="authStatus"></p>
-  </div>
+  <p id="authStatus"></p>
 </div>
 
-<!-- 📚 APP -->
+<!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
   <div class="header">
-    Pixieish Shelves
+    PIXIEISH SHELVES
     <p class="tagline">your whimsical cozy-world for reading</p>
+
+    <div class="menu">
+      <button onclick="toggleMenu()">☰</button>
+      <div id="dropdown">
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
   </div>
 
   <div class="container">
 
-    <button onclick="logout()">Logout</button>
-
     <!-- ✍️ WRITER -->
-    <div class="card" id="writerMode">
-      <h3>Writer Mode</h3>
+    <div id="writerMode" class="card" style="display:none;">
+      <h3>Create Story</h3>
 
-      <input id="title" placeholder="Book title..." />
-      <textarea id="synopsis" placeholder="Synopsis..."></textarea>
-      <input id="genre" placeholder="Genre" />
-      <input id="series" placeholder="Series" />
+      <input id="title" placeholder="Title">
+      <textarea id="synopsis" placeholder="Synopsis"></textarea>
+
+      <input id="genre" placeholder="Genre">
+      <input id="series" placeholder="Series">
 
       <select id="statusSelect">
         <option value="ongoing">Ongoing</option>
         <option value="completed">Completed</option>
       </select>
 
-      <textarea id="content" placeholder="Chapter 1..."></textarea>
+      <input id="coverURL" placeholder="Paste cover image URL">
 
-      <button onclick="addBook()">Publish Book</button>
+      <textarea id="content" placeholder="Start writing..."></textarea>
+
+      <label>
+        <input type="checkbox" id="publishBook"> Publish Book
+      </label>
+
+      <button onclick="addBook()">Save Book</button>
       <p id="status"></p>
     </div>
 
     <!-- 📖 CHAPTER -->
-    <div class="card" id="chapterMode" style="display:none;">
-      <h3>Chapters</h3>
+    <div id="chapterMode" class="card" style="display:none;">
+      <h3>Add Chapter</h3>
 
       <select id="bookSelect"></select>
-      <input id="chapterTitle" placeholder="Chapter title..." />
+      <input id="chapterTitle" placeholder="Chapter Title">
       <textarea id="chapterContent"></textarea>
+
+      <label>
+        <input type="checkbox" id="publishChapter"> Publish Chapter
+      </label>
 
       <button onclick="addChapter()">Add Chapter</button>
       <p id="chapterStatus"></p>
@@ -80,32 +88,10 @@
 
     <!-- 📚 LIBRARY -->
     <div class="card">
-      <h3>Your Stories</h3>
+      <h3>Your Library</h3>
       <div id="yourBooks"></div>
     </div>
 
-  </div>
-</div>
-
-<!-- 📖 READER VIEW -->
-<div id="readerView" style="display:none; padding:20px;">
-
-  <button onclick="closeReader()">← Back</button>
-
-  <div class="card">
-    <h2 id="readTitle"></h2>
-    <p id="readMeta"></p>
-    <p id="readSynopsis"></p>
-  </div>
-
-  <div class="card">
-    <h3>Chapters</h3>
-    <div id="chapterList"></div>
-  </div>
-
-  <div class="card" id="chapterReader" style="display:none;">
-    <h3 id="chapterReadTitle"></h3>
-    <p id="chapterReadContent"></p>
   </div>
 
 </div>
