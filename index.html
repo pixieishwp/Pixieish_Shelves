@@ -37,8 +37,9 @@
     <p class="tagline">your cozy world of reading</p>
   </div>
 
-  <div class="container">
+  <div class="container" id="mainContainer">
 
+    <!-- Continue Reading -->
     <div class="card">
       <h3>Continue Reading</h3>
 
@@ -53,9 +54,10 @@
       <button onclick="openReader()">Continue Reading</button>
     </div>
 
+    <!-- Add Book -->
     <div class="card">
-      <h3>My Library</h3>
-      <p>Your cozy collection of stories</p>
+      <h3>Add to Library</h3>
+      <p>Save this story to your shelves</p>
       <button onclick="addBook()">Add Book</button>
     </div>
 
@@ -89,7 +91,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 YOUR FIREBASE CONFIG
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -132,7 +134,7 @@ window.login = function() {
     .catch(err => alert(err.message));
 };
 
-// SAVE BOOK
+// ADD BOOK
 window.addBook = async function() {
   const user = auth.currentUser;
 
@@ -149,7 +151,7 @@ window.addBook = async function() {
   alert("Book saved 💖");
 };
 
-// LOAD BOOKS (simple alert version)
+// LOAD BOOKS (REAL UI)
 window.loadBooks = async function() {
   const user = auth.currentUser;
 
@@ -157,16 +159,34 @@ window.loadBooks = async function() {
 
   const querySnapshot = await getDocs(collection(db, "books"));
 
+  const container = document.getElementById("mainContainer");
+
+  let html = `
+    <div class="card">
+      <h3>My Library</h3>
+  `;
+
   querySnapshot.forEach((doc) => {
     const data = doc.data();
 
     if (data.userId === user.uid) {
-      alert("Your book: " + data.title);
+      html += `
+        <div class="book-card">
+          <div class="book-cover"></div>
+          <div class="book-info">
+            <strong>${data.title}</strong>
+          </div>
+        </div>
+      `;
     }
   });
+
+  html += `</div>`;
+
+  container.innerHTML += html;
 };
 
-// APP FLOW
+// FLOW
 setTimeout(() => {
   showScreen("login");
 }, 2000);
