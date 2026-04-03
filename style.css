@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  font-family: Georgia, serif;
+  background: #FFF8F0;
+  color: #4A3F35;
+}
+
+.header {
+  text-align: center;
+  padding: 20px;
+  font-size: 24px;
+}
+
+.tagline {
+  font-size: 14px;
+  color: #E8A87C;
+}
+
+.container {
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 20px;
+  margin-bottom: 15px;
+}
+
+.hidden {
+  display: none;
+}
