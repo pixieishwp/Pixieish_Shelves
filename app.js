@@ -1,13 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs,
-  deleteDoc, doc, query, orderBy, where
+  getFirestore, collection, addDoc, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {
-  getAuth, createUserWithEmailAndPassword,
-  signInWithEmailAndPassword, signOut,
-  onAuthStateChanged
+  getAuth, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 /* CONFIG */
@@ -24,8 +23,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const ADMIN_EMAIL = "pixieishwp@gmail.com";
-
 /* AUTH */
 window.signup = async () => {
   await createUserWithEmailAndPassword(auth, val("email"), val("password"));
@@ -37,21 +34,16 @@ window.login = async () => {
 
 window.logout = async () => {
   await signOut(auth);
+  location.reload();
 };
 
 /* ADD BOOK */
 window.addBook = async () => {
-  const user = auth.currentUser;
-
-  await addDoc(collection(db, "books"), {
+  await addDoc(collection(db,"books"), {
     title: val("title"),
     synopsis: val("synopsis"),
     genre: val("genre"),
-    status: document.getElementById("statusSelect").value,
-    cover: val("coverURL"),
-    published: document.getElementById("publishBook").checked,
-    userId: user.uid,
-    createdAt: Date.now()
+    cover: val("coverURL") || "https://via.placeholder.com/150"
   });
 
   loadBooks();
@@ -71,29 +63,28 @@ async function loadBooks() {
       <div class="book-card" onclick="openBook('${d.id}')">
         <img src="${data.cover}" class="book-cover">
         <div>
-          <strong>${data.title}</strong>
-          <p>${data.genre}</p>
+          <strong>${data.title || "Untitled"}</strong>
+          <p>${data.genre || "No genre"}</p>
         </div>
       </div>
     `;
   });
 }
 
-/* 📖 BOOK VIEW */
-window.currentBookId = null;
+/* BOOK VIEW */
+let currentBookId = null;
 
 window.openBook = async (id) => {
   currentBookId = id;
 
-  hide("appScreen");
-  show("readerView");
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("readerView").style.display = "block";
 
   const snap = await getDocs(collection(db,"books"));
 
   snap.forEach(d => {
     if (d.id === id) {
       const data = d.data();
-
       setText("readTitle", data.title);
       setText("readMeta", data.genre);
       setText("readSynopsis", data.synopsis);
@@ -101,54 +92,54 @@ window.openBook = async (id) => {
     }
   });
 
-  loadChapters(id);
+  loadChapters();
 };
 
-/* 📖 LOAD CHAPTERS */
-async function loadChapters(bookId) {
+/* CHAPTERS */
+async function loadChapters() {
   const list = document.getElementById("chapterList");
   list.innerHTML = "";
 
-  const snap = await getDocs(query(
-    collection(db,"chapters"),
-    where("bookId","==",bookId)
-  ));
+  const snap = await getDocs(collection(db,"chapters"));
 
   snap.forEach(d => {
-    const div = document.createElement("div");
-    div.innerText = d.data().title;
-    list.appendChild(div);
+    const data = d.data();
+    if (data.bookId === currentBookId) {
+      list.innerHTML += `<div>${data.title}</div>`;
+    }
   });
 }
 
-/* ADD CHAPTER */
 window.addChapterFromReader = async () => {
   await addDoc(collection(db,"chapters"), {
     bookId: currentBookId,
     title: val("chapterTitle"),
-    content: val("chapterContent"),
-    createdAt: Date.now()
+    content: val("chapterContent")
   });
 
-  loadChapters(currentBookId);
+  loadChapters();
 };
+
+window.closeReader = () => {
+  document.getElementById("readerView").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+};
+
+/* AUTH STATE + SPLASH FIX */
+onAuthStateChanged(auth, user => {
+  setTimeout(() => {
+    document.getElementById("splash").style.display = "none";
+
+    if (user) {
+      document.getElementById("appScreen").style.display = "block";
+      document.getElementById("authScreen").style.display = "none";
+      loadBooks();
+    } else {
+      document.getElementById("authScreen").style.display = "flex";
+    }
+  }, 1200);
+});
 
 /* HELPERS */
 function val(id){ return document.getElementById(id).value; }
 function setText(id,txt){ document.getElementById(id).innerText = txt; }
-function show(id){ document.getElementById(id).style.display="block"; }
-function hide(id){ document.getElementById(id).style.display="none"; }
-
-/* AUTH STATE */
-onAuthStateChanged(auth, user => {
-  document.getElementById("splash").style.display="none";
-
-  if(user){
-    show("appScreen");
-    hide("authScreen");
-    loadBooks();
-  } else {
-    show("authScreen");
-    hide("appScreen");
-  }
-});
