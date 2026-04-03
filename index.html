@@ -12,9 +12,14 @@
 
 <body>
 
-<!-- 🔐 LOGIN SCREEN -->
-<div id="authScreen" class="container">
+<!-- 🌸 SPLASH -->
+<div id="splash">
+  <h1 class="splash-title">Pixieish Shelves</h1>
+  <p class="splash-tagline">your whimsical cozy-world for reading</p>
+</div>
 
+<!-- 🔐 LOGIN -->
+<div id="authScreen" class="container">
   <div class="card">
     <h2 style="text-align:center;">Pixieish Shelves</h2>
     <p class="tagline" style="text-align:center;">your whimsical cozy-world for reading</p>
@@ -27,10 +32,9 @@
 
     <p id="authStatus"></p>
   </div>
-
 </div>
 
-<!-- 📚 MAIN APP -->
+<!-- 📚 APP -->
 <div id="appScreen" style="display:none;">
 
   <div class="header">
@@ -40,11 +44,10 @@
 
   <div class="container">
 
-    <!-- LOGOUT -->
     <button onclick="logout()">Logout</button>
 
-    <!-- WRITER -->
-    <div class="card">
+    <!-- ✍️ WRITER MODE (LOCKED) -->
+    <div class="card" id="writerMode">
       <h3>Writer Mode</h3>
 
       <input id="title" placeholder="Enter your book title..." />
@@ -54,14 +57,13 @@
       <p id="status"></p>
     </div>
 
-    <!-- LIBRARY -->
+    <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Stories</h3>
       <div id="yourBooks"></div>
     </div>
 
   </div>
-
 </div>
 
 <script type="module" src="app.js"></script>
