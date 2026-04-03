@@ -5,34 +5,67 @@ body {
   color: #4A3F35;
 }
 
-/* Header */
+/* HEADER */
 .header {
   text-align: center;
-  padding: 25px;
-  font-size: 26px;
+  padding: 30px 20px 10px;
+  font-size: 28px;
   font-weight: bold;
 }
 
 .tagline {
   font-size: 14px;
   color: #E8A87C;
+  margin-top: 5px;
 }
 
-/* Container */
+/* CONTAINER */
 .container {
-  padding: 15px;
+  padding: 20px;
 }
 
-/* Card UI */
+/* CARD */
 .card {
   background: #ffffff;
   padding: 20px;
   border-radius: 25px;
-  margin-bottom: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
-/* Buttons */
+/* CONTINUE READING STYLE */
+.book-card {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.book-cover {
+  width: 60px;
+  height: 80px;
+  border-radius: 10px;
+  background: #F6C7A7;
+}
+
+.book-info {
+  flex: 1;
+}
+
+.progress {
+  height: 6px;
+  background: #eee;
+  border-radius: 10px;
+  margin-top: 5px;
+}
+
+.progress-bar {
+  height: 6px;
+  width: 40%;
+  background: #E8A87C;
+  border-radius: 10px;
+}
+
+/* BUTTON */
 button {
   background: linear-gradient(135deg, #F6C7A7, #E8A87C);
   border: none;
@@ -41,19 +74,25 @@ button {
   width: 100%;
   color: #fff;
   font-weight: bold;
+  margin-top: 10px;
 }
 
-/* Reader */
+/* READER */
 #reader {
   padding: 20px;
 }
 
 #text {
-  line-height: 1.8;
+  line-height: 1.9;
   font-size: 16px;
 }
 
-/* Highlight */
+/* HIDDEN */
+.hidden {
+  display: none;
+}
+
+/* HIGHLIGHT */
 .highlight {
   background: #FFE4D6;
   padding: 2px 4px;
