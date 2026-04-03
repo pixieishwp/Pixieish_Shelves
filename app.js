@@ -19,9 +19,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* 🔥 FIREBASE CONFIG */
+/* 🔥 CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
+  apiKey: "AIzaSy...",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
   storageBucket: "pixieish-shelves.appspot.com",
@@ -36,7 +36,7 @@ const auth = getAuth(app);
 
 const ADMIN_EMAIL = "pixieishwp@gmail.com";
 
-/* 🔐 AUTH FUNCTIONS */
+/* 🔐 AUTH */
 window.signup = async () => {
   try {
     await createUserWithEmailAndPassword(auth, val("email"), val("password"));
@@ -59,13 +59,10 @@ window.logout = async () => {
   await signOut(auth);
 };
 
-/* 📚 ADD BOOK */
+/* 📚 ADD BOOK (UPDATED) */
 window.addBook = async () => {
   const user = auth.currentUser;
-  if (!user || user.email !== ADMIN_EMAIL) {
-    alert("Admin only");
-    return;
-  }
+  if (!user || user.email !== ADMIN_EMAIL) return alert("Admin only");
 
   await addDoc(collection(db, "books"), {
     title: val("title"),
@@ -74,26 +71,38 @@ window.addBook = async () => {
     series: val("series"),
     status: document.getElementById("statusSelect").value,
     content: val("content"),
+    cover: val("coverURL"), // ✅ NEW
+    published: document.getElementById("publishBook").checked, // ✅ NEW
     userId: user.uid,
     createdAt: Date.now()
   });
 
-  set("status", "Book published!");
-  clear(["title","synopsis","genre","series","content"]);
+  set("status", "Book saved!");
+  clear(["title","synopsis","genre","series","content","coverURL"]);
 
   loadBooks();
   loadBookOptions();
 };
 
-/* 📖 ADD CHAPTER */
+/* 📖 ADD CHAPTER (UPDATED) */
 window.addChapter = async () => {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) return;
 
+  const bookId = document.getElementById("bookSelect").value;
+
+  const snap = await getDocs(query(
+    collection(db,"chapters"),
+    where("bookId","==",bookId)
+  ));
+
+  const chapterNumber = snap.size + 1;
+
   await addDoc(collection(db, "chapters"), {
-    bookId: document.getElementById("bookSelect").value,
-    title: val("chapterTitle"),
+    bookId,
+    title: `Chapter ${chapterNumber}: ${val("chapterTitle")}`,
     content: val("chapterContent"),
+    published: document.getElementById("publishChapter").checked,
     createdAt: Date.now()
   });
 
@@ -101,19 +110,17 @@ window.addChapter = async () => {
   clear(["chapterTitle","chapterContent"]);
 };
 
-/* 🗑 DELETE BOOK */
+/* 🗑 DELETE */
 window.deleteBook = async (id) => {
   if (!confirm("Delete this book?")) return;
-
   await deleteDoc(doc(db, "books", id));
   loadBooks();
 };
 
-/* 📚 LOAD BOOKS */
+/* 📚 LOAD BOOKS (OPTIMIZED) */
 async function loadBooks() {
   const user = auth.currentUser;
   const container = document.getElementById("yourBooks");
-
   if (!container) return;
 
   container.innerHTML = "";
@@ -122,25 +129,63 @@ async function loadBooks() {
     query(collection(db,"books"), orderBy("createdAt","desc"))
   );
 
+  let html = "";
+
   snap.forEach(docSnap => {
     const data = docSnap.data();
 
-    if (data.userId === user.uid) {
-      container.innerHTML += `
+    // ✅ Show published OR own books
+    if (data.published || data.userId === user.uid) {
+      html += `
         <div class="book-card" onclick="openBook('${docSnap.id}')">
-          <strong>${data.title}</strong>
-          <p>${data.genre || ""} • ${data.status}</p>
-          <small>${data.synopsis || ""}</small>
+          ${data.cover ? `<img src="${data.cover}" class="book-cover">` : ""}
 
-          ${user.email === ADMIN_EMAIL ? `
-            <button onclick="event.stopPropagation(); deleteBook('${docSnap.id}')">
-              Delete
-            </button>
-          ` : ""}
+          <div class="book-info">
+            <strong>${data.title}</strong>
+            <p>${data.genre || ""} • ${data.status}</p>
+            <small>${data.synopsis || ""}</small>
+
+            ${user.email === ADMIN_EMAIL ? `
+              <button onclick="event.stopPropagation(); deleteBook('${docSnap.id}')">
+                Delete
+              </button>
+            ` : ""}
+          </div>
         </div>
       `;
     }
   });
+
+  container.innerHTML = html;
+}
+
+/* 📖 LOAD CHAPTERS */
+async function loadChapters(bookId) {
+  const list = document.getElementById("chapterList");
+  list.innerHTML = "";
+
+  const snap = await getDocs(query(
+    collection(db,"chapters"),
+    where("bookId","==",bookId),
+    orderBy("createdAt")
+  ));
+
+  let html = "";
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    // ✅ Hide unpublished from readers
+    if (!data.published && auth.currentUser.email !== ADMIN_EMAIL) return;
+
+    html += `
+      <div onclick="readChapter('${data.title}', \`${data.content}\`)">
+        ${data.title}
+      </div>
+    `;
+  });
+
+  list.innerHTML = html;
 }
 
 /* 📖 OPEN BOOK */
@@ -162,36 +207,14 @@ window.openBook = async (id) => {
   loadChapters(id);
 };
 
-/* 📖 LOAD CHAPTERS */
-async function loadChapters(bookId) {
-  const list = document.getElementById("chapterList");
-  list.innerHTML = "";
-
-  const snap = await getDocs(query(
-    collection(db,"chapters"),
-    where("bookId","==",bookId),
-    orderBy("createdAt")
-  ));
-
-  snap.forEach(d => {
-    const data = d.data();
-
-    list.innerHTML += `
-      <div onclick="readChapter('${data.title}', \`${data.content}\`)">
-        ${data.title}
-      </div>
-    `;
-  });
-}
-
-/* 📖 READ CHAPTER */
+/* 📖 READ */
 window.readChapter = (title, content) => {
   show("chapterReader");
   setText("chapterReadTitle", title);
   setText("chapterReadContent", content);
 };
 
-/* 🔙 CLOSE READER */
+/* 🔙 CLOSE */
 window.closeReader = () => {
   show("appScreen");
   hide("readerView");
@@ -203,11 +226,10 @@ window.toggleMenu = () => {
   d.style.display = d.style.display === "block" ? "none" : "block";
 };
 
-/* 📘 LOAD BOOK OPTIONS */
+/* 📘 BOOK OPTIONS */
 async function loadBookOptions() {
   const user = auth.currentUser;
   const select = document.getElementById("bookSelect");
-
   if (!select) return;
 
   select.innerHTML = "";
@@ -216,14 +238,12 @@ async function loadBookOptions() {
 
   snap.forEach(d => {
     if (d.data().userId === user.uid) {
-      select.innerHTML += `
-        <option value="${d.id}">${d.data().title}</option>
-      `;
+      select.innerHTML += `<option value="${d.id}">${d.data().title}</option>`;
     }
   });
 }
 
-/* 🔐 AUTH STATE (FINAL FIX) */
+/* 🔐 AUTH STATE */
 onAuthStateChanged(auth, user => {
   const splash = document.getElementById("splash");
   const authScreen = document.getElementById("authScreen");
@@ -232,7 +252,6 @@ onAuthStateChanged(auth, user => {
   const writer = document.getElementById("writerMode");
   const chapter = document.getElementById("chapterMode");
 
-  // ✅ Always hide splash AFTER Firebase responds
   if (splash) splash.style.display = "none";
 
   if (user) {
@@ -286,4 +305,4 @@ function show(id) {
 function hide(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = "none";
-}
+    }
