@@ -19,12 +19,12 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* 🔥 CORRECT FIREBASE CONFIG (FIXED) */
+/* 🔥 FINAL CORRECT CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.appspot.com",
+  storageBucket: "pixieish-shelves.appspot.com", // ✅ FIXED
   messagingSenderId: "458160398514",
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
@@ -303,4 +303,4 @@ function show(id) {
 function hide(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = "none";
-              }
+}
