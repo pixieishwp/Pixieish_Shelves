@@ -4,6 +4,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  deleteDoc,
+  doc,
   query,
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -15,6 +17,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+// 🔑 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -31,43 +34,37 @@ const auth = getAuth(app);
 const ADMIN_EMAIL = "pixieishwp@gmail.com";
 
 // 🔐 AUTH
-window.signup = async function () {
-  const email = emailEl().value;
-  const password = passwordEl().value;
-  const status = authStatus();
-
-  status.innerText = "Creating account...";
+window.signup = async () => {
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    status.innerText = "Account created!";
+    await createUserWithEmailAndPassword(
+      auth,
+      val("email"),
+      val("password")
+    );
+    set("authStatus", "Account created!");
   } catch (e) {
-    status.innerText = e.message;
+    set("authStatus", e.message);
   }
 };
 
-window.login = async function () {
-  const email = emailEl().value;
-  const password = passwordEl().value;
-  const status = authStatus();
-
-  status.innerText = "Logging in...";
+window.login = async () => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    status.innerText = "Success!";
+    await signInWithEmailAndPassword(
+      auth,
+      val("email"),
+      val("password")
+    );
+    set("authStatus", "Logged in!");
   } catch (e) {
-    status.innerText = e.message;
+    set("authStatus", e.message);
   }
 };
 
-window.logout = async function () {
-  await signOut(auth);
-};
+window.logout = async () => await signOut(auth);
 
-// ✍️ ADD BOOK (UPDATED)
-window.addBook = async function () {
+// ✍️ ADD BOOK
+window.addBook = async () => {
   const user = auth.currentUser;
-  const status = document.getElementById("status");
-
   if (!user) return alert("Login first");
 
   if (user.email !== ADMIN_EMAIL) {
@@ -75,16 +72,15 @@ window.addBook = async function () {
     return;
   }
 
-  // 🆕 NEW FIELDS
-  const title = getVal("title");
-  const synopsis = getVal("synopsis");
-  const genre = getVal("genre");
-  const series = getVal("series");
+  const title = val("title");
+  const synopsis = val("synopsis");
+  const genre = val("genre");
+  const series = val("series");
   const statusBook = document.getElementById("statusSelect").value;
-  const content = getVal("content");
+  const content = val("content");
 
   if (!title || !content) {
-    status.innerText = "Title & story required.";
+    set("status", "Title & content required.");
     return;
   }
 
@@ -99,14 +95,56 @@ window.addBook = async function () {
     createdAt: Date.now()
   });
 
-  status.innerText = "Book published.";
+  set("status", "Book published!");
+  clear(["title","synopsis","genre","series","content"]);
 
-  clearFields();
+  loadBooks();
+  loadBookOptions();
+};
 
+// 📖 ADD CHAPTER
+window.addChapter = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  if (user.email !== ADMIN_EMAIL) {
+    alert("Only admin can add chapters.");
+    return;
+  }
+
+  const bookId = document.getElementById("bookSelect").value;
+  const title = val("chapterTitle");
+  const content = val("chapterContent");
+
+  if (!bookId || !title || !content) {
+    set("chapterStatus", "Complete all fields.");
+    return;
+  }
+
+  await addDoc(collection(db, "chapters"), {
+    bookId,
+    title,
+    content,
+    createdAt: Date.now()
+  });
+
+  set("chapterStatus", "Chapter added!");
+  clear(["chapterTitle","chapterContent"]);
+};
+
+// 🗑 DELETE BOOK
+window.deleteBook = async (id) => {
+  const user = auth.currentUser;
+
+  if (user.email !== ADMIN_EMAIL) return;
+
+  if (!confirm("Delete this book?")) return;
+
+  await deleteDoc(doc(db, "books", id));
   loadBooks();
 };
 
-// 📚 LOAD BOOKS (UPDATED DISPLAY)
+// 📚 LOAD BOOKS
 async function loadBooks() {
   const user = auth.currentUser;
   if (!user) return;
@@ -115,10 +153,10 @@ async function loadBooks() {
   container.innerHTML = "";
 
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
-  const snapshot = await getDocs(q);
+  const snap = await getDocs(q);
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
+  snap.forEach(docSnap => {
+    const data = docSnap.data();
 
     if (data.userId === user.uid) {
       container.insertAdjacentHTML("beforeend", `
@@ -129,8 +167,35 @@ async function loadBooks() {
             <p>${data.genre || "No genre"} • ${data.status}</p>
             <p style="font-size:12px;">${data.synopsis || ""}</p>
           </div>
+
+          ${user.email === ADMIN_EMAIL ? `
+            <button onclick="deleteBook('${docSnap.id}')">Delete</button>
+          ` : ""}
         </div>
       `);
+    }
+  });
+}
+
+// 📚 LOAD BOOK OPTIONS
+async function loadBookOptions() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const select = document.getElementById("bookSelect");
+  select.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "books"));
+
+  snap.forEach(docSnap => {
+    const data = docSnap.data();
+
+    if (data.userId === user.uid) {
+      select.innerHTML += `
+        <option value="${docSnap.id}">
+          ${data.title}
+        </option>
+      `;
     }
   });
 }
@@ -138,13 +203,20 @@ async function loadBooks() {
 // 👀 AUTH STATE
 onAuthStateChanged(auth, (user) => {
   const writer = document.getElementById("writerMode");
+  const chapter = document.getElementById("chapterMode");
 
   if (user) {
     show("appScreen");
     hide("authScreen");
 
-    writer.style.display =
-      user.email === ADMIN_EMAIL ? "block" : "none";
+    if (user.email === ADMIN_EMAIL) {
+      writer.style.display = "block";
+      chapter.style.display = "block";
+      loadBookOptions();
+    } else {
+      writer.style.display = "none";
+      chapter.style.display = "none";
+    }
 
     loadBooks();
   } else {
@@ -163,17 +235,8 @@ window.addEventListener("load", () => {
 });
 
 // 🧰 HELPERS
-function getVal(id) {
-  return document.getElementById(id)?.value.trim() || "";
-}
-function clearFields() {
-  ["title","synopsis","genre","series","content"].forEach(id=>{
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-}
-function emailEl(){ return document.getElementById("email"); }
-function passwordEl(){ return document.getElementById("password"); }
-function authStatus(){ return document.getElementById("authStatus"); }
-function show(id){ document.getElementById(id).style.display = "block"; }
-function hide(id){ document.getElementById(id).style.display = "none"; }
+function val(id){ return document.getElementById(id)?.value.trim() || ""; }
+function set(id, txt){ document.getElementById(id).innerText = txt; }
+function clear(arr){ arr.forEach(id => document.getElementById(id).value=""); }
+function show(id){ document.getElementById(id).style.display="block"; }
+function hide(id){ document.getElementById(id).style.display="none"; }
