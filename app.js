@@ -1,4 +1,3 @@
-// 🔥 IMPORT FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore,
@@ -16,7 +15,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔑 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -30,10 +28,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔐 ADMIN EMAIL
+// 🔒 ADMIN EMAIL
 const ADMIN_EMAIL = "pixieishwp@gmail.com";
 
-// 🔐 SIGN UP
+// 🔐 SIGNUP
 window.signup = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -75,14 +73,10 @@ window.addBook = async function () {
   const user = auth.currentUser;
   const status = document.getElementById("status");
 
-  if (!user) {
-    alert("Login first");
-    return;
-  }
+  if (!user) return alert("Login first");
 
-  // 🚫 BLOCK NON-ADMIN
   if (user.email !== ADMIN_EMAIL) {
-    alert("Only admin can publish books.");
+    alert("Only admin can publish.");
     return;
   }
 
@@ -90,7 +84,7 @@ window.addBook = async function () {
   const content = document.getElementById("content").value.trim();
 
   if (!title || !content) {
-    status.innerText = "Complete your story";
+    status.innerText = "Complete your story.";
     return;
   }
 
@@ -101,7 +95,7 @@ window.addBook = async function () {
     createdAt: Date.now()
   });
 
-  status.innerText = "Book published";
+  status.innerText = "Book published.";
 
   document.getElementById("title").value = "";
   document.getElementById("content").value = "";
@@ -139,17 +133,16 @@ async function loadBooks() {
 
 // 👀 AUTH STATE
 onAuthStateChanged(auth, (user) => {
-  const writerCard = document.querySelector(".card"); // writer mode card
+  const writer = document.getElementById("writerMode");
 
   if (user) {
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
 
-    // 🔒 HIDE WRITER MODE IF NOT ADMIN
-    if (user.email !== ADMIN_EMAIL) {
-      writerCard.style.display = "none";
+    if (user.email === ADMIN_EMAIL) {
+      writer.style.display = "block";
     } else {
-      writerCard.style.display = "block";
+      writer.style.display = "none";
     }
 
     loadBooks();
