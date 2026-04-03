@@ -21,7 +21,7 @@ import {
 
 /* 🔥 CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
   storageBucket: "pixieish-shelves.appspot.com",
