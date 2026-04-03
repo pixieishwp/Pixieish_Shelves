@@ -5,18 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&family=Holtwood+One+SC&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- 🌸 SPLASH (FIXED) -->
+<!-- 🌸 SPLASH -->
 <div id="splash">
-  <div class="splash-content">
-    <h1 class="splash-title">Pixieish Shelves</h1>
-    <p class="splash-tagline">your cozy reading world ✨</p>
-  </div>
+  <div class="splash-title">Pixieish Shelves</div>
+  <div class="splash-tagline">your cozy reading world ✨</div>
 </div>
 
 <!-- 🔐 AUTH -->
@@ -62,8 +61,7 @@
         <option value="completed">Completed</option>
       </select>
 
-      <input id="coverURL" placeholder="Paste cover image URL">
-
+      <input id="coverURL" placeholder="Cover URL">
       <textarea id="content" placeholder="Start writing..."></textarea>
 
       <label>
@@ -74,28 +72,40 @@
       <p id="status"></p>
     </div>
 
-    <!-- 📖 CHAPTER -->
-    <div id="chapterMode" class="card" style="display:none;">
-      <h3>Add Chapter</h3>
-
-      <select id="bookSelect"></select>
-      <input id="chapterTitle" placeholder="Chapter Title">
-      <textarea id="chapterContent"></textarea>
-
-      <label>
-        <input type="checkbox" id="publishChapter"> Publish Chapter
-      </label>
-
-      <button onclick="addChapter()">Add Chapter</button>
-      <p id="chapterStatus"></p>
-    </div>
-
     <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Library</h3>
       <div id="yourBooks"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- 📖 READER VIEW -->
+<div id="readerView" style="display:none;" class="reader">
+
+  <button onclick="closeReader()" class="back-btn">← Back</button>
+
+  <div class="reader-header">
+    <img id="readCover" class="reader-cover">
+    <h2 id="readTitle"></h2>
+    <p id="readMeta"></p>
+    <p id="readSynopsis"></p>
+  </div>
+
+  <div id="chapterList" class="chapter-list"></div>
+
+  <!-- ✍️ ADD CHAPTER -->
+  <div id="readerAddChapter" style="display:none;" class="card">
+    <h3>Add Chapter</h3>
+    <input id="chapterTitle" placeholder="Chapter title">
+    <textarea id="chapterContent"></textarea>
+
+    <label>
+      <input type="checkbox" id="publishChapter"> Publish
+    </label>
+
+    <button onclick="addChapterFromReader()">Add Chapter</button>
   </div>
 
 </div>
