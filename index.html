@@ -44,6 +44,7 @@
 
   <div class="container">
 
+    <!-- 🔓 LOGOUT -->
     <button onclick="logout()">Logout</button>
 
     <!-- ✍️ WRITER MODE (ADMIN ONLY) -->
@@ -68,6 +69,21 @@
       <button onclick="addBook()">Publish Book</button>
 
       <p id="status"></p>
+    </div>
+
+    <!-- 📖 CHAPTER MODE (STEP 3) -->
+    <div class="card" id="chapterMode" style="display:none;">
+      <h3>Chapters</h3>
+
+      <select id="bookSelect"></select>
+
+      <input id="chapterTitle" placeholder="Chapter title..." />
+
+      <textarea id="chapterContent" placeholder="Write your chapter..."></textarea>
+
+      <button onclick="addChapter()">Add Chapter</button>
+
+      <p id="chapterStatus"></p>
     </div>
 
     <!-- 📚 LIBRARY -->
