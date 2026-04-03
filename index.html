@@ -12,13 +12,13 @@
 
 <body>
 
-<!-- 🌸 SPLASH SCREEN -->
+<!-- 🌸 SPLASH -->
 <div id="splash">
   <h1 class="splash-title">Pixieish Shelves</h1>
   <p class="splash-tagline">your whimsical cozy-world for reading</p>
 </div>
 
-<!-- 🔐 AUTH SCREEN -->
+<!-- 🔐 AUTH -->
 <div id="authScreen" class="container">
   <div class="card">
     <h2 style="text-align:center;">Pixieish Shelves</h2>
@@ -34,7 +34,7 @@
   </div>
 </div>
 
-<!-- 📚 MAIN APP -->
+<!-- 📚 APP -->
 <div id="appScreen" style="display:none;">
 
   <div class="header">
@@ -44,45 +44,37 @@
 
   <div class="container">
 
-    <!-- 🔓 LOGOUT -->
     <button onclick="logout()">Logout</button>
 
-    <!-- ✍️ WRITER MODE (ADMIN ONLY) -->
+    <!-- ✍️ WRITER -->
     <div class="card" id="writerMode">
       <h3>Writer Mode</h3>
 
       <input id="title" placeholder="Book title..." />
-
-      <textarea id="synopsis" placeholder="Write a short synopsis..."></textarea>
-
-      <input id="genre" placeholder="Genre (e.g. Romance, Fantasy)" />
-
-      <input id="series" placeholder="Series (leave blank if standalone)" />
+      <textarea id="synopsis" placeholder="Synopsis..."></textarea>
+      <input id="genre" placeholder="Genre" />
+      <input id="series" placeholder="Series" />
 
       <select id="statusSelect">
         <option value="ongoing">Ongoing</option>
         <option value="completed">Completed</option>
       </select>
 
-      <textarea id="content" placeholder="Start writing Chapter 1..."></textarea>
+      <textarea id="content" placeholder="Chapter 1..."></textarea>
 
       <button onclick="addBook()">Publish Book</button>
-
       <p id="status"></p>
     </div>
 
-    <!-- 📖 CHAPTER MODE (STEP 3) -->
+    <!-- 📖 CHAPTER -->
     <div class="card" id="chapterMode" style="display:none;">
       <h3>Chapters</h3>
 
       <select id="bookSelect"></select>
-
       <input id="chapterTitle" placeholder="Chapter title..." />
-
-      <textarea id="chapterContent" placeholder="Write your chapter..."></textarea>
+      <textarea id="chapterContent"></textarea>
 
       <button onclick="addChapter()">Add Chapter</button>
-
       <p id="chapterStatus"></p>
     </div>
 
@@ -93,6 +85,29 @@
     </div>
 
   </div>
+</div>
+
+<!-- 📖 READER VIEW -->
+<div id="readerView" style="display:none; padding:20px;">
+
+  <button onclick="closeReader()">← Back</button>
+
+  <div class="card">
+    <h2 id="readTitle"></h2>
+    <p id="readMeta"></p>
+    <p id="readSynopsis"></p>
+  </div>
+
+  <div class="card">
+    <h3>Chapters</h3>
+    <div id="chapterList"></div>
+  </div>
+
+  <div class="card" id="chapterReader" style="display:none;">
+    <h3 id="chapterReadTitle"></h3>
+    <p id="chapterReadContent"></p>
+  </div>
+
 </div>
 
 <script type="module" src="app.js"></script>
