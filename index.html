@@ -4,7 +4,6 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
@@ -12,55 +11,74 @@
 
 <body>
 
-<div class="header">
-  Pixieish Shelves
-  <p class="tagline">your cozy world of reading</p>
-</div>
+<!-- HOME SCREEN -->
+<div id="home">
 
-<div class="container">
+  <div class="header">
+    Pixieish Shelves
+    <p class="tagline">your cozy world of reading</p>
+  </div>
 
-  <!-- Continue Reading -->
-  <div class="card">
-    <h3>Continue Reading</h3>
+  <div class="container">
 
-    <div class="book-card">
-      <div class="book-cover"></div>
+    <!-- Continue Reading -->
+    <div class="card">
+      <h3>Continue Reading</h3>
 
-      <div class="book-info">
-        <strong>What Was Never Enough</strong>
-        <div class="progress">
-          <div class="progress-bar"></div>
+      <div class="book-card">
+        <div class="book-cover"></div>
+
+        <div class="book-info">
+          <strong>What Was Never Enough</strong>
+          <div class="progress">
+            <div class="progress-bar"></div>
+          </div>
         </div>
       </div>
+
+      <button onclick="openReader()">Continue Reading</button>
     </div>
 
-    <button onclick="openReader()">Continue Reading</button>
-  </div>
+    <!-- Library -->
+    <div class="card">
+      <h3>My Library</h3>
+      <p>Your cozy collection of stories</p>
+      <button>Add Book</button>
+    </div>
 
-  <!-- Library -->
-  <div class="card">
-    <h3>My Library</h3>
-    <p>Your cozy collection of stories</p>
-    <button>Add Book</button>
   </div>
 
 </div>
 
-<!-- Reader -->
+<!-- READER SCREEN -->
 <div id="reader" class="hidden">
-  <div class="card">
-    <h2>Simula</h2>
-    <p id="text">
-      What was never enough? Maybe it was the silence, or the things left unsaid.
-    </p>
 
-    <button onclick="highlight()">Highlight</button>
+  <div class="header">
+    <button onclick="goBack()">← Back</button>
   </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Simula</h2>
+      <p id="text">
+        What was never enough? Maybe it was the silence, or the things left unsaid.
+      </p>
+
+      <button onclick="highlight()">Highlight</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
 function openReader() {
+  document.getElementById("home").style.display = "none";
   document.getElementById("reader").classList.remove("hidden");
+}
+
+function goBack() {
+  document.getElementById("home").style.display = "block";
+  document.getElementById("reader").classList.add("hidden");
 }
 
 function highlight() {
