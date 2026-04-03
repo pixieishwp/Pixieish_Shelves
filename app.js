@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
   getAuth, 
+  signInAnonymously,
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -30,22 +31,24 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
+// 🔑 AUTO LOGIN (so no signup yet)
+signInAnonymously(auth);
+
+
 // 👤 AUTH CHECK
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    loadBooks(); // auto load
-  } else {
-    console.log("Not logged in");
+    loadBooks();
   }
 });
 
 
-// ✍️ ADD BOOK (WRITER MODE)
+// ✍️ ADD BOOK
 window.addBook = async function () {
   const user = auth.currentUser;
 
   if (!user) {
-    alert("Login first!");
+    alert("Not logged in");
     return;
   }
 
@@ -53,39 +56,36 @@ window.addBook = async function () {
 
   if (!title) return;
 
-  try {
-    await addDoc(collection(db, "books"), {
-      title: title,
-      userId: user.uid,
-      createdAt: new Date()
-    });
+  await addDoc(collection(db, "books"), {
+    title: title,
+    userId: user.uid
+  });
 
-    alert("Book added!");
+  alert("Book added!");
 
-    loadBooks(); // refresh library
-
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  loadBooks();
 };
 
 
-// 📚 LOAD BOOKS (FIXED NO DUPLICATE UI)
+// 📚 LOAD BOOKS (NO DUPLICATES)
 window.loadBooks = async function () {
   const user = auth.currentUser;
   if (!user) return;
 
   const container = document.querySelector(".container");
 
-  // ✅ CLEAR FIRST (IMPORTANT)
-  container.innerHTML = "";
+  // CLEAR UI FIRST
+  container.innerHTML = `
+    <div class="card">
+      <h3>My Library</h3>
+      <p>Your cozy collection of stories</p>
+      <button onclick="addBook()">Add Book</button>
+    </div>
+  `;
 
   const querySnapshot = await getDocs(collection(db, "books"));
 
-  let html = `
-    <div class="card">
-      <h3>My Library</h3>
-  `;
+  let html = "";
 
   querySnapshot.forEach((doc) => {
     const data = doc.data();
@@ -102,8 +102,5 @@ window.loadBooks = async function () {
     }
   });
 
-  html += `</div>`;
-
-  // ✅ REPLACE (NOT +=)
-  container.innerHTML = html;
+  container.innerHTML += html;
 };
