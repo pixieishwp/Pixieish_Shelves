@@ -1,4 +1,3 @@
-/* 🌸 BASE */
 body {
   margin: 0;
   font-family: 'Georgia', serif;
@@ -9,17 +8,17 @@ body {
 /* HEADER */
 .header {
   text-align: center;
-  padding: 30px 20px 10px;
-  font-size: 28px;
-  font-weight: bold;
+  padding: 40px 20px 20px;
+  font-size: 26px;
   font-family: 'DM Serif Display', serif;
+  letter-spacing: 1px;
   position: relative;
 }
 
 .tagline {
-  font-size: 14px;
-  color: #E8A87C;
-  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  color: #C89B7B;
+  font-style: italic;
 }
 
 /* MENU */
@@ -29,12 +28,6 @@ body {
   right: 20px;
 }
 
-.menu button {
-  width: auto;
-  padding: 8px 12px;
-  border-radius: 10px;
-}
-
 #dropdown {
   display: none;
   position: absolute;
@@ -42,7 +35,6 @@ body {
   background: white;
   padding: 10px;
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* LAYOUT */
@@ -51,67 +43,43 @@ body {
 }
 
 .card {
-  background: #ffffff;
+  background: rgba(255,255,255,0.7);
   padding: 20px;
   border-radius: 25px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
   margin-bottom: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
-/* INPUTS */
-input, textarea, select {
+/* INPUT */
+input, textarea {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
   border-radius: 12px;
   border: 1px solid #eee;
-  font-family: 'Georgia', serif;
-}
-
-textarea {
-  height: 120px;
-  resize: none;
 }
 
 /* BUTTON */
 button {
-  background: linear-gradient(135deg, #F6C7A7, #E8A87C);
+  background: linear-gradient(135deg, #E8A87C, #F6C7A7);
   border: none;
   padding: 12px;
-  border-radius: 15px;
+  border-radius: 14px;
   width: 100%;
-  color: #fff;
-  font-weight: bold;
+  color: white;
   margin-top: 10px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
-button:active {
-  transform: scale(0.97);
-}
-
-/* STATUS TEXT */
-#status, #authStatus, #chapterStatus {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #E8A87C;
-}
-
-/* 📚 BOOK LIST (UPGRADED FOR STEP 6) */
+/* BOOK CARD */
 .book-card {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 15px;
-  background: #fff5ee;
-  transition: 0.2s ease;
-}
-
-.book-card:hover {
-  transform: translateY(-2px);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #f3e5dc;
+  margin-top: 10px;
 }
 
 .book-cover {
@@ -119,75 +87,33 @@ button:active {
   height: 85px;
   border-radius: 10px;
   object-fit: cover;
-  background: #F6C7A7;
 }
 
-.book-info {
-  flex: 1;
-}
-
-.book-info strong {
-  font-size: 15px;
-}
-
-.book-info p {
-  margin: 2px 0;
-  font-size: 12px;
-  color: #a38b75;
-}
-
-.book-info small {
-  font-size: 11px;
-  color: #b8a89a;
-}
-
-/* 🌸 SPLASH */
+/* SPLASH */
 #splash {
   position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   background: #FFF8F0;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  transition: opacity 0.8s ease;
-}
-
-.splash-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 32px;
-}
-
-.splash-tagline {
-  font-family: 'Crimson Text', serif;
-  color: #E8A87C;
-}
-
-/* 🔐 AUTH SCREEN */
-.auth {
-  display: none;
   flex-direction: column;
-  padding: 40px 20px;
+  z-index: 9999;
 }
 
-/* ✍️ WRITER IMPROVEMENT */
-#writerMode h3,
-#chapterMode h3 {
-  margin-top: 0;
+/* READER */
+.reader {
+  padding: 20px;
 }
 
-/* 📱 SMALL SCREEN POLISH */
-@media (max-width: 500px) {
-  .header {
-    font-size: 22px;
-  }
+.reader-cover {
+  width: 120px;
+  border-radius: 10px;
+}
 
-  .book-cover {
-    width: 50px;
-    height: 70px;
-  }
+.chapter-list div {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
 }
