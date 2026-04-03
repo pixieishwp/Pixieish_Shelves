@@ -1,3 +1,4 @@
+/* 🌸 BASE */
 body {
   margin: 0;
   font-family: 'Georgia', serif;
@@ -12,12 +13,36 @@ body {
   font-size: 28px;
   font-weight: bold;
   font-family: 'DM Serif Display', serif;
+  position: relative;
 }
 
 .tagline {
   font-size: 14px;
   color: #E8A87C;
   font-family: 'Crimson Text', serif;
+}
+
+/* MENU */
+.menu {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.menu button {
+  width: auto;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+#dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* LAYOUT */
@@ -34,7 +59,7 @@ body {
 }
 
 /* INPUTS */
-input, textarea {
+input, textarea, select {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
@@ -45,6 +70,7 @@ input, textarea {
 
 textarea {
   height: 120px;
+  resize: none;
 }
 
 /* BUTTON */
@@ -58,32 +84,61 @@ button {
   font-weight: bold;
   margin-top: 10px;
   cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 /* STATUS TEXT */
-#status, #authStatus {
+#status, #authStatus, #chapterStatus {
   margin-top: 10px;
   font-size: 14px;
   color: #E8A87C;
 }
 
-/* BOOK LIST */
+/* 📚 BOOK LIST (UPGRADED FOR STEP 6) */
 .book-card {
   display: flex;
-  gap: 15px;
-  align-items: center;
-  margin-top: 10px;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 15px;
+  background: #fff5ee;
+  transition: 0.2s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
 }
 
 .book-cover {
   width: 60px;
-  height: 80px;
+  height: 85px;
   border-radius: 10px;
+  object-fit: cover;
   background: #F6C7A7;
 }
 
 .book-info {
   flex: 1;
+}
+
+.book-info strong {
+  font-size: 15px;
+}
+
+.book-info p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: #a38b75;
+}
+
+.book-info small {
+  font-size: 11px;
+  color: #b8a89a;
 }
 
 /* 🌸 SPLASH */
@@ -110,4 +165,29 @@ button {
 .splash-tagline {
   font-family: 'Crimson Text', serif;
   color: #E8A87C;
+}
+
+/* 🔐 AUTH SCREEN */
+.auth {
+  display: none;
+  flex-direction: column;
+  padding: 40px 20px;
+}
+
+/* ✍️ WRITER IMPROVEMENT */
+#writerMode h3,
+#chapterMode h3 {
+  margin-top: 0;
+}
+
+/* 📱 SMALL SCREEN POLISH */
+@media (max-width: 500px) {
+  .header {
+    font-size: 22px;
+  }
+
+  .book-cover {
+    width: 50px;
+    height: 70px;
+  }
 }
