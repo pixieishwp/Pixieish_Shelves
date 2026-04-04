@@ -1,38 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Pixieish Shelves</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-<!-- 🌸 SPLASH (FIXED — now uses styled elements) -->
-<div id="splash">
-  <div class="splash-title">Pixieish Shelves</div>
-  <div class="splash-tagline">a quiet place for your stories</div>
-</div>
-
-<!-- 🔐 AUTH -->
-<div id="authScreen" class="auth" style="display:none;">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
-  <button onclick="signup()">Sign Up</button>
-
-  <p id="authStatus"></p>
-</div>
-
-<!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
+  <!-- HEADER -->
   <div class="header">
-    PIXIEISH SHELVES
-    <p class="tagline">your whimsical cozy-world for reading</p>
+    Pixieish Shelves ✨
+    <div class="tagline">Where stories feel like magic</div>
 
     <div class="menu">
       <button onclick="toggleMenu()">☰</button>
@@ -42,22 +13,28 @@
     </div>
   </div>
 
+  <!-- MAIN CONTENT -->
   <div class="container" id="mainContainer">
 
-    <!-- ✍️ WRITER -->
-    <div id="writerMode" class="card">
-      <h3>Create Story</h3>
+    <!-- ✍️ WRITER MODE (AUTO LOCKED BY JS) -->
+    <div class="card" id="writerCard">
 
-      <input id="title" placeholder="Title">
-      <textarea id="synopsis" placeholder="Synopsis"></textarea>
+      <h3>✍️ Writer Mode</h3>
 
-      <input id="genre" placeholder="Genre">
-      <input id="coverURL" placeholder="Cover URL">
+      <input id="title" placeholder="Book Title">
 
-      <textarea id="content" placeholder="Start writing..."></textarea>
+      <input id="genre" placeholder="Genre (e.g. Romance, Fantasy)">
+
+      <input id="coverURL" placeholder="Cover Image URL (optional)">
+
+      <textarea id="synopsis" placeholder="Short synopsis..."></textarea>
+
+      <textarea id="content" placeholder="Start writing your story..."></textarea>
 
       <button onclick="addBook()">Save Book</button>
-      <p id="status"></p>
+
+      <p id="status" style="font-size:12px; margin-top:5px;"></p>
+
     </div>
 
     <!-- 📚 LIBRARY -->
@@ -68,17 +45,4 @@
 
   </div>
 
-  <!-- 📖 READER MODE -->
-  <div id="readerMode" style="display:none;" class="card">
-    <button onclick="closeReader()">← Back</button>
-
-    <h2 id="readerTitle"></h2>
-    <p id="readerContent"></p>
-  </div>
-
 </div>
-
-<script type="module" src="app.js"></script>
-
-</body>
-</html>
