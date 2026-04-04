@@ -33,7 +33,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 👑 OWNER */
+/* 👑 OWNER LOCK */
 const OWNER_EMAIL = "pixieishwp@gmail.com";
 
 /* 📌 STATE */
@@ -69,7 +69,7 @@ window.signup = async function () {
       document.getElementById("email").value,
       document.getElementById("password").value
     );
-    authStatus.innerText = "Account created!";
+    document.getElementById("authStatus").innerText = "Account created!";
   } catch (e) {
     document.getElementById("authStatus").innerText = e.message;
   }
@@ -89,7 +89,7 @@ onAuthStateChanged(auth, (user) => {
     authScreen.style.display = "none";
     appScreen.style.display = "block";
 
-    /* 🔐 LOCK WRITER */
+    /* 🔐 LOCK WRITER MODE */
     if (user.email === OWNER_EMAIL) {
       writerCard.style.display = "block";
     } else {
@@ -185,7 +185,7 @@ async function loadBooks() {
   });
 }
 
-/* 📖 READER (LOAD CHAPTERS) */
+/* 📖 READER (FIXED) */
 window.openReader = async function (book, bookId) {
   document.getElementById("readerMode").style.display = "block";
   document.getElementById("mainContainer").style.display = "none";
@@ -199,13 +199,16 @@ window.openReader = async function (book, bookId) {
 
   let content = "";
 
-  snapshot.forEach((doc) => {
-    const ch = doc.data();
-    content += `<h3>${ch.title}</h3><p>${ch.content}</p><br>`;
-  });
+  if (snapshot.empty) {
+    content = "<p>No chapters yet. ✍️</p>";
+  } else {
+    snapshot.forEach((doc) => {
+      const ch = doc.data();
+      content += `<h3>${ch.title}</h3><p>${ch.content}</p><br>`;
+    });
+  }
 
-  document.getElementById("readerContent").innerHTML =
-    content || "No chapters yet.";
+  document.getElementById("readerContent").innerHTML = content;
 };
 
 /* ❌ CLOSE READER */
