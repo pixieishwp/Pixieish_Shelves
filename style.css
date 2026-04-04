@@ -12,6 +12,7 @@ body {
   font-size: 26px;
   font-family: 'DM Serif Display', serif;
   position: relative;
+  letter-spacing: 1px;
 }
 
 .tagline {
@@ -49,10 +50,11 @@ body {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   padding: 20px;
   border-radius: 25px;
   margin-bottom: 20px;
+  backdrop-filter: blur(10px);
 }
 
 /* INPUTS */
@@ -73,6 +75,7 @@ button {
   width: 100%;
   color: white;
   margin-top: 10px;
+  letter-spacing: 0.5px;
 }
 
 /* AUTH */
@@ -94,6 +97,11 @@ button {
   padding: 12px;
   border-radius: 15px;
   background: #fff5ee;
+  transition: 0.2s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
 }
 
 .book-cover {
@@ -103,18 +111,45 @@ button {
   object-fit: cover;
 }
 
-/* SPLASH */
+/* 🌸 SPLASH (WHIMSICAL UPGRADE) */
 #splash {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #FFF8F0;
+  background: linear-gradient(180deg, #FFF8F0, #FDEEE6);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 28px;
+  gap: 10px;
   z-index: 9999;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.8s ease;
+}
+
+.splash-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 34px;
+  letter-spacing: 1px;
+  animation: fadeIn 1.2s ease;
+}
+
+.splash-tagline {
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: #C89B7B;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
