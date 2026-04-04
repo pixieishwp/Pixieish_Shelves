@@ -1,145 +1,76 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore, collection, addDoc, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// TEMP STORAGE (no firebase yet)
+let books = [];
 
-import {
-  getAuth, signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+/* 🌸 SPLASH */
+window.addEventListener("load", () => {
+  const splash = document.getElementById("splash");
+  const auth = document.getElementById("authScreen");
 
-/* CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
-  authDomain: "pixieish-shelves.firebaseapp.com",
-  projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.appspot.com",
-  messagingSenderId: "458160398514",
-  appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
-};
+  setTimeout(() => {
+    splash.style.opacity = "0";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    setTimeout(() => {
+      splash.style.display = "none";
+      auth.style.display = "flex";
+    }, 500);
 
-/* AUTH */
-window.signup = async () => {
-  await createUserWithEmailAndPassword(auth, val("email"), val("password"));
-};
+  }, 1500);
+});
 
-window.login = async () => {
-  await signInWithEmailAndPassword(auth, val("email"), val("password"));
-};
-
-window.logout = async () => {
-  await signOut(auth);
-  location.reload();
-};
-
-/* ADD BOOK */
-window.addBook = async () => {
-  await addDoc(collection(db,"books"), {
-    title: val("title"),
-    synopsis: val("synopsis"),
-    genre: val("genre"),
-    cover: val("coverURL") || "https://via.placeholder.com/150"
-  });
-
-  loadBooks();
-};
-
-/* LOAD BOOKS */
-async function loadBooks() {
-  const container = document.getElementById("yourBooks");
-  container.innerHTML = "";
-
-  const snap = await getDocs(collection(db,"books"));
-
-  snap.forEach(d => {
-    const data = d.data();
-
-    container.innerHTML += `
-      <div class="book-card" onclick="openBook('${d.id}')">
-        <img src="${data.cover}" class="book-cover">
-        <div>
-          <strong>${data.title || "Untitled"}</strong>
-          <p>${data.genre || "No genre"}</p>
-        </div>
-      </div>
-    `;
-  });
-}
-
-/* BOOK VIEW */
-let currentBookId = null;
-
-window.openBook = async (id) => {
-  currentBookId = id;
-
-  document.getElementById("appScreen").style.display = "none";
-  document.getElementById("readerView").style.display = "block";
-
-  const snap = await getDocs(collection(db,"books"));
-
-  snap.forEach(d => {
-    if (d.id === id) {
-      const data = d.data();
-      setText("readTitle", data.title);
-      setText("readMeta", data.genre);
-      setText("readSynopsis", data.synopsis);
-      document.getElementById("readCover").src = data.cover;
-    }
-  });
-
-  loadChapters();
-};
-
-/* CHAPTERS */
-async function loadChapters() {
-  const list = document.getElementById("chapterList");
-  list.innerHTML = "";
-
-  const snap = await getDocs(collection(db,"chapters"));
-
-  snap.forEach(d => {
-    const data = d.data();
-    if (data.bookId === currentBookId) {
-      list.innerHTML += `<div>${data.title}</div>`;
-    }
-  });
-}
-
-window.addChapterFromReader = async () => {
-  await addDoc(collection(db,"chapters"), {
-    bookId: currentBookId,
-    title: val("chapterTitle"),
-    content: val("chapterContent")
-  });
-
-  loadChapters();
-};
-
-window.closeReader = () => {
-  document.getElementById("readerView").style.display = "none";
+/* 🔐 FAKE AUTH */
+window.login = function () {
+  document.getElementById("authScreen").style.display = "none";
   document.getElementById("appScreen").style.display = "block";
 };
 
-/* AUTH STATE + SPLASH FIX */
-onAuthStateChanged(auth, user => {
-  setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
+window.signup = function () {
+  document.getElementById("authStatus").innerText = "Account created!";
+};
 
-    if (user) {
-      document.getElementById("appScreen").style.display = "block";
-      document.getElementById("authScreen").style.display = "none";
-      loadBooks();
-    } else {
-      document.getElementById("authScreen").style.display = "flex";
-    }
-  }, 1200);
-});
+window.logout = function () {
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("authScreen").style.display = "flex";
+};
 
-/* HELPERS */
-function val(id){ return document.getElementById(id).value; }
-function setText(id,txt){ document.getElementById(id).innerText = txt; }
+/* ☰ MENU */
+window.toggleMenu = function () {
+  const menu = document.getElementById("dropdown");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+};
+
+/* 📚 ADD BOOK */
+window.addBook = function () {
+  const title = document.getElementById("title").value || "Untitled";
+  const synopsis = document.getElementById("synopsis").value || "No description";
+  const genre = document.getElementById("genre").value || "Unknown";
+  const cover = document.getElementById("coverURL").value || "";
+
+  const book = { title, synopsis, genre, cover };
+  books.push(book);
+
+  renderBooks();
+
+  document.getElementById("status").innerText = "Book saved!";
+};
+
+/* 📖 RENDER BOOKS */
+function renderBooks() {
+  const container = document.getElementById("yourBooks");
+  container.innerHTML = "";
+
+  books.forEach(book => {
+    const div = document.createElement("div");
+    div.className = "book-card";
+
+    div.innerHTML = `
+      <img src="${book.cover || 'https://via.placeholder.com/60x85'}" class="book-cover">
+      <div>
+        <strong>${book.title}</strong>
+        <p>${book.genre}</p>
+        <small>${book.synopsis}</small>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+                        }
