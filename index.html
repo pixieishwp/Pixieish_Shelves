@@ -1,3 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pixieish Shelves</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- 🌸 SPLASH -->
+<div id="splash">
+  <div class="splash-title">Pixieish Shelves</div>
+  <div class="splash-tagline">a cozy world for your stories ✨</div>
+</div>
+
+<!-- 🔐 AUTH -->
+<div id="authScreen" class="auth" style="display:none;">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+  <button onclick="signup()">Sign Up</button>
+
+  <p id="authStatus"></p>
+</div>
+
+<!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
   <!-- HEADER -->
@@ -16,24 +46,21 @@
   <!-- MAIN CONTENT -->
   <div class="container" id="mainContainer">
 
-    <!-- ✍️ WRITER MODE (AUTO LOCKED BY JS) -->
+    <!-- ✍️ WRITER MODE -->
     <div class="card" id="writerCard">
 
       <h3>✍️ Writer Mode</h3>
 
       <input id="title" placeholder="Book Title">
+      <input id="genre" placeholder="Genre">
 
-      <input id="genre" placeholder="Genre (e.g. Romance, Fantasy)">
+      <input id="coverURL" placeholder="Cover URL">
 
-      <input id="coverURL" placeholder="Cover Image URL (optional)">
-
-      <textarea id="synopsis" placeholder="Short synopsis..."></textarea>
-
-      <textarea id="content" placeholder="Start writing your story..."></textarea>
+      <textarea id="synopsis" placeholder="Synopsis"></textarea>
+      <textarea id="content" placeholder="Start writing..."></textarea>
 
       <button onclick="addBook()">Save Book</button>
-
-      <p id="status" style="font-size:12px; margin-top:5px;"></p>
+      <p id="status"></p>
 
     </div>
 
@@ -46,3 +73,9 @@
   </div>
 
 </div>
+
+<!-- ⚠️ VERY IMPORTANT -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
