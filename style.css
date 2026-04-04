@@ -1,65 +1,120 @@
 body {
   margin: 0;
+  font-family: 'Georgia', serif;
   background: #FFF8F0;
-  font-family: Georgia;
+  color: #4A3F35;
 }
 
+/* HEADER */
 .header {
   text-align: center;
-  padding: 30px;
+  padding: 40px 20px 20px;
+  font-size: 26px;
   font-family: 'DM Serif Display', serif;
+  position: relative;
 }
 
 .tagline {
+  font-size: 13px;
   color: #C89B7B;
   font-style: italic;
 }
 
+/* MENU */
+.menu {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.menu button {
+  width: auto;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+#dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+/* LAYOUT */
 .container {
   padding: 20px;
 }
 
 .card {
-  background: rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.8);
   padding: 20px;
-  border-radius: 20px;
+  border-radius: 25px;
   margin-bottom: 20px;
 }
 
-button {
+/* INPUTS */
+input, textarea {
   width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #E8A87C;
-  color: white;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid #eee;
 }
 
-.book-card {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: white;
+/* BUTTON */
+button {
+  background: linear-gradient(135deg, #E8A87C, #F6C7A7);
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+  width: 100%;
+  color: white;
   margin-top: 10px;
 }
 
-.book-cover {
-  width: 50px;
-  height: 70px;
+/* AUTH */
+.auth {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;
 }
 
+.auth input {
+  margin-bottom: 10px;
+}
+
+/* BOOK CARD */
+.book-card {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 15px;
+  background: #fff5ee;
+}
+
+.book-cover {
+  width: 60px;
+  height: 85px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* SPLASH */
 #splash {
   position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background: #FFF8F0;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-}
-
-.reader {
-  display: none;
-  padding: 20px;
+  font-size: 28px;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
 }
