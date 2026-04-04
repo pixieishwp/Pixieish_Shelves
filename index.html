@@ -11,21 +11,21 @@
 <body>
 
 <!-- 🌸 SPLASH -->
-<div id="splash">
-  <h1 class="splash-title">Pixieish Shelves</h1>
-  <p class="splash-tagline">your cozy reading world ✨</p>
-</div>
+<div id="splash">Pixieish Shelves</div>
 
 <!-- 🔐 AUTH -->
-<div id="authScreen" class="auth">
+<div id="authScreen" class="auth" style="display:none;">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
+
   <button onclick="login()">Login</button>
   <button onclick="signup()">Sign Up</button>
+
+  <p id="authStatus"></p>
 </div>
 
 <!-- 📱 APP -->
-<div id="appScreen">
+<div id="appScreen" style="display:none;">
 
   <div class="header">
     PIXIEISH SHELVES
@@ -41,39 +41,30 @@
 
   <div class="container">
 
+    <!-- ✍️ WRITER -->
     <div id="writerMode" class="card">
       <h3>Create Story</h3>
+
       <input id="title" placeholder="Title">
       <textarea id="synopsis" placeholder="Synopsis"></textarea>
+
       <input id="genre" placeholder="Genre">
       <input id="coverURL" placeholder="Cover URL">
+
+      <textarea id="content" placeholder="Start writing..."></textarea>
+
       <button onclick="addBook()">Save Book</button>
+      <p id="status"></p>
     </div>
 
+    <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Library</h3>
       <div id="yourBooks"></div>
     </div>
 
   </div>
-</div>
 
-<!-- 📖 READER -->
-<div id="readerView" class="reader">
-  <button onclick="closeReader()">← Back</button>
-
-  <img id="readCover">
-  <h2 id="readTitle"></h2>
-  <p id="readMeta"></p>
-  <p id="readSynopsis"></p>
-
-  <div id="chapterList"></div>
-
-  <div id="readerAddChapter">
-    <input id="chapterTitle" placeholder="Chapter title">
-    <textarea id="chapterContent"></textarea>
-    <button onclick="addChapterFromReader()">Add Chapter</button>
-  </div>
 </div>
 
 <script type="module" src="app.js"></script>
