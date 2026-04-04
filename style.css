@@ -1,3 +1,4 @@
+/* 🌿 BASE */
 body {
   margin: 0;
   font-family: 'Georgia', serif;
@@ -5,7 +6,7 @@ body {
   color: #4A3F35;
 }
 
-/* HEADER */
+/* ✨ HEADER */
 .header {
   text-align: center;
   padding: 40px 20px 20px;
@@ -21,7 +22,7 @@ body {
   font-style: italic;
 }
 
-/* MENU */
+/* ☰ MENU */
 .menu {
   position: absolute;
   top: 20px;
@@ -42,31 +43,35 @@ body {
   background: white;
   padding: 10px;
   border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
 }
 
-/* LAYOUT */
+/* 📦 LAYOUT */
 .container {
   padding: 20px;
 }
 
+/* 🪟 CARD (soft glass effect) */
 .card {
   background: rgba(255, 255, 255, 0.85);
   padding: 20px;
   border-radius: 25px;
   margin-bottom: 20px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
-/* INPUTS */
+/* ✍️ INPUTS */
 input, textarea {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
   border-radius: 12px;
   border: 1px solid #eee;
+  font-family: 'Crimson Text', serif;
 }
 
-/* BUTTON */
+/* 🔘 BUTTON */
 button {
   background: linear-gradient(135deg, #E8A87C, #F6C7A7);
   border: none;
@@ -76,9 +81,15 @@ button {
   color: white;
   margin-top: 10px;
   letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
-/* AUTH */
+button:hover {
+  opacity: 0.9;
+}
+
+/* 🔐 AUTH */
 .auth {
   display: flex;
   flex-direction: column;
@@ -89,7 +100,7 @@ button {
   margin-bottom: 10px;
 }
 
-/* BOOK CARD */
+/* 📚 BOOK CARD */
 .book-card {
   display: flex;
   gap: 12px;
@@ -97,11 +108,13 @@ button {
   padding: 12px;
   border-radius: 15px;
   background: #fff5ee;
-  transition: 0.2s ease;
+  transition: 0.25s ease;
+  cursor: pointer;
 }
 
 .book-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
 .book-cover {
@@ -111,7 +124,7 @@ button {
   object-fit: cover;
 }
 
-/* 🌸 SPLASH (WHIMSICAL UPGRADE) */
+/* 🌸 SPLASH (WHIMSICAL) */
 #splash {
   position: fixed;
   top: 0;
@@ -133,6 +146,7 @@ button {
   font-size: 34px;
   letter-spacing: 1px;
   animation: fadeIn 1.2s ease;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .splash-tagline {
@@ -143,6 +157,7 @@ button {
   opacity: 0.9;
 }
 
+/* ✨ ANIMATION */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -152,4 +167,22 @@ button {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 📖 READER MODE */
+#readerMode {
+  background: #fffaf5;
+  padding: 25px;
+  line-height: 1.8;
+}
+
+#readerTitle {
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 15px;
+}
+
+#readerContent {
+  font-size: 15px;
+  color: #5a4a3f;
+  white-space: pre-wrap;
 }
