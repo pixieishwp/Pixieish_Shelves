@@ -4,20 +4,14 @@
   <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🌸 FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
-
-  <!-- 🎨 CSS -->
-  <link rel="stylesheet" href="./style.css?v=6">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <!-- 🌸 SPLASH -->
-<div id="splash">
-  <h1 class="splash-title">Pixieish Shelves</h1>
-  <p class="splash-tagline">your quiet corner of stories</p>
-</div>
+<div id="splash">Pixieish Shelves</div>
 
 <!-- 🔐 AUTH -->
 <div id="authScreen" class="auth" style="display:none;">
@@ -45,7 +39,7 @@
     </div>
   </div>
 
-  <div class="container">
+  <div class="container" id="mainContainer">
 
     <!-- ✍️ WRITER -->
     <div id="writerMode" class="card">
@@ -69,6 +63,14 @@
       <div id="yourBooks"></div>
     </div>
 
+  </div>
+
+  <!-- 📖 READER MODE -->
+  <div id="readerMode" style="display:none;" class="card">
+    <button onclick="closeReader()">← Back</button>
+
+    <h2 id="readerTitle"></h2>
+    <p id="readerContent"></p>
   </div>
 
 </div>
