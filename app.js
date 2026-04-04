@@ -1,5 +1,6 @@
 /* 🔥 FIREBASE IMPORTS */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -17,7 +18,7 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* 🔥 YOUR FIREBASE CONFIG */
+/* 🔥 CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -32,8 +33,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 👑 OWNER EMAIL (ONLY THIS CAN WRITE) */
+/* 👑 OWNER */
 const OWNER_EMAIL = "pixieishwp@gmail.com";
+
+/* 📌 STATE */
+let currentBookId = null;
 
 /* 🌸 SPLASH */
 window.addEventListener("load", () => {
@@ -47,11 +51,12 @@ window.addEventListener("load", () => {
 
 /* 🔐 AUTH */
 window.login = async function () {
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-
   try {
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
   } catch (e) {
     document.getElementById("authStatus").innerText = e.message;
   }
@@ -64,7 +69,7 @@ window.signup = async function () {
       document.getElementById("email").value,
       document.getElementById("password").value
     );
-    document.getElementById("authStatus").innerText = "Account created!";
+    authStatus.innerText = "Account created!";
   } catch (e) {
     document.getElementById("authStatus").innerText = e.message;
   }
@@ -84,7 +89,7 @@ onAuthStateChanged(auth, (user) => {
     authScreen.style.display = "none";
     appScreen.style.display = "block";
 
-    /* 🔐 LOCK WRITER MODE */
+    /* 🔐 LOCK WRITER */
     if (user.email === OWNER_EMAIL) {
       writerCard.style.display = "block";
     } else {
@@ -104,40 +109,63 @@ window.toggleMenu = function () {
   menu.style.display = menu.style.display === "block" ? "none" : "block";
 };
 
-/* 📚 ADD BOOK (OWNER ONLY) */
+/* 📚 CREATE BOOK */
 window.addBook = async function () {
   const user = auth.currentUser;
 
   if (!user || user.email !== OWNER_EMAIL) {
-    alert("You are not allowed to write.");
+    alert("Not allowed.");
     return;
   }
 
-  await addDoc(collection(db, "books"), {
+  const docRef = await addDoc(collection(db, "books"), {
     title: document.getElementById("title").value,
     synopsis: document.getElementById("synopsis").value,
     genre: document.getElementById("genre").value,
     cover: document.getElementById("coverURL").value,
-    content: document.getElementById("content").value,
     userId: user.uid
   });
 
-  document.getElementById("status").innerText = "Book saved!";
-  loadBooks();
+  currentBookId = docRef.id;
+
+  document.getElementById("status").innerText =
+    "Book created! Now add chapters.";
 };
 
-/* 📖 LOAD BOOKS (PER USER) */
+/* ✍️ ADD CHAPTER */
+window.addChapter = async function () {
+  if (!currentBookId) {
+    alert("Create a book first!");
+    return;
+  }
+
+  await addDoc(
+    collection(db, "books", currentBookId, "chapters"),
+    {
+      title: document.getElementById("chapterTitle").value,
+      content: document.getElementById("chapterContent").value
+    }
+  );
+
+  alert("Chapter added!");
+};
+
+/* 📚 LOAD BOOKS */
 async function loadBooks() {
   const user = auth.currentUser;
   const container = document.getElementById("yourBooks");
 
   container.innerHTML = "";
 
-  const q = query(collection(db, "books"), where("userId", "==", user.uid));
+  const q = query(
+    collection(db, "books"),
+    where("userId", "==", user.uid)
+  );
+
   const snapshot = await getDocs(q);
 
-  snapshot.forEach(doc => {
-    const book = doc.data();
+  snapshot.forEach((docItem) => {
+    const book = docItem.data();
 
     const div = document.createElement("div");
     div.className = "book-card";
@@ -151,21 +179,36 @@ async function loadBooks() {
       </div>
     `;
 
-    div.onclick = () => openReader(book);
+    div.onclick = () => openReader(book, docItem.id);
 
     container.appendChild(div);
   });
 }
 
-/* 📖 READER */
-window.openReader = function (book) {
+/* 📖 READER (LOAD CHAPTERS) */
+window.openReader = async function (book, bookId) {
   document.getElementById("readerMode").style.display = "block";
   document.getElementById("mainContainer").style.display = "none";
 
   document.getElementById("readerTitle").innerText = book.title;
-  document.getElementById("readerContent").innerText = book.content;
+  document.getElementById("readerContent").innerHTML = "Loading...";
+
+  const snapshot = await getDocs(
+    collection(db, "books", bookId, "chapters")
+  );
+
+  let content = "";
+
+  snapshot.forEach((doc) => {
+    const ch = doc.data();
+    content += `<h3>${ch.title}</h3><p>${ch.content}</p><br>`;
+  });
+
+  document.getElementById("readerContent").innerHTML =
+    content || "No chapters yet.";
 };
 
+/* ❌ CLOSE READER */
 window.closeReader = function () {
   document.getElementById("readerMode").style.display = "none";
   document.getElementById("mainContainer").style.display = "block";
