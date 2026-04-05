@@ -4,9 +4,7 @@
   <title>Pixieish Shelves ✨</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -30,7 +28,6 @@
 <!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
-  <!-- HEADER -->
   <div class="header">
     Pixieish Shelves ✨
     <div class="tagline">Where stories feel like magic</div>
@@ -43,28 +40,23 @@
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="container">
 
- <div id="writerSection">
+    <!-- ✍️ WRITER MODE -->
+    <div id="writerSection" style="display:none;">
+      <div class="card">
+        <h3>✍️ Writer Mode</h3>
 
-  <!-- ✍️ WRITER MODE -->
-  <div class="card" id="writerCard">
+        <input id="title" placeholder="Book Title">
+        <input id="genre" placeholder="Genre">
+        <input id="coverURL" placeholder="Cover URL">
+        <textarea id="synopsis" placeholder="Synopsis"></textarea>
 
-    <h3>✍️ Writer Mode</h3>
+        <button onclick="addBook()">Create Book</button>
+        <p id="status"></p>
+      </div>
+    </div>
 
-    <input id="title" placeholder="Book Title">
-    <input id="genre" placeholder="Genre">
-    <input id="coverURL" placeholder="Cover Image URL (optional)">
-    <textarea id="synopsis" placeholder="Short synopsis..."></textarea>
-
-    <button onclick="addBook()">Create Book</button>
-
-    <p id="status"></p>
-
-  </div>
-
-</div>
     <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Library</h3>
@@ -78,17 +70,24 @@
 <div id="bookPage" style="display:none;" class="container">
 
   <button onclick="closeBook()">← Back</button>
-
   <h2 id="bookTitle"></h2>
 
-  <!-- ✍️ ADD CHAPTER -->
-  <div class="card">
-    <h3>Add Chapter</h3>
+  <!-- ✍️ WRITER CONTROLS -->
+  <div id="writerBookControls" style="display:none;">
 
-    <input id="chapterTitle" placeholder="Chapter Title">
-    <textarea id="chapterContent" placeholder="Write your chapter..."></textarea>
+    <div class="card">
+      <h3>Add Chapter</h3>
 
-    <button onclick="addChapter()">Publish Chapter</button>
+      <input id="chapterTitle" placeholder="Chapter Title">
+      <textarea id="chapterContent"></textarea>
+
+      <button onclick="addChapter()">Publish Chapter</button>
+    </div>
+
+    <button onclick="deleteBook()" style="background:#e57373;">
+      Delete Book
+    </button>
+
   </div>
 
   <!-- 📑 CHAPTER LIST -->
@@ -97,25 +96,15 @@
     <div id="chapterList"></div>
   </div>
 
-  <!-- 🗑 DELETE -->
-  <button onclick="deleteBook()" style="background:#e57373;">
-    Delete Book
-  </button>
-
 </div>
 
-<!-- 📖 READER MODE -->
+<!-- 📖 READER -->
 <div id="readerMode" style="display:none;" class="container">
-
   <button onclick="closeReader()">← Back</button>
-
   <h2 id="readerTitle"></h2>
-
   <div id="readerContent"></div>
-
 </div>
 
-<!-- 🔥 SCRIPT -->
 <script type="module" src="app.js"></script>
 
 </body>
