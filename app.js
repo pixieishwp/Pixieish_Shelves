@@ -12,7 +12,11 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
-  projectId: "pixieish-shelves"
+  projectId: "pixieish-shelves",
+  storageBucket: "pixieish-shelves.appspot.com", // ✅ FIXED
+  messagingSenderId: "458160398514",
+  appId: "1:458160398514:web:b8bd9d073d5823575b29ab",
+  measurementId: "G-5K5L5N9X8B"
 };
 
 const app = initializeApp(firebaseConfig);
