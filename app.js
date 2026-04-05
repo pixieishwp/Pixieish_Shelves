@@ -1,4 +1,3 @@
-// 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
 import {
@@ -22,20 +21,12 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-
-// 🔑 CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
+  apiKey: "YOUR_KEY",
   authDomain: "pixieish-shelves.firebaseapp.com",
-  projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.firebasestorage.app",
-  messagingSenderId: "458160398514",
-  appId: "1:458160398514:web:b8bd9d073d5823575b29ab",
-  measurementId: "G-5K5L5N9X8B"
+  projectId: "pixieish-shelves"
 };
 
-
-// 🚀 INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -45,218 +36,149 @@ let currentBookId = null;
 let currentUserRole = "reader";
 
 
-// 🎬 SPLASH
-setTimeout(() => {
-  document.getElementById("splash").style.opacity = "0";
-  setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
-    document.getElementById("authScreen").style.display = "flex";
-  }, 800);
-}, 1500);
-
-
-// 🔐 AUTH
+// 🔐 LOGIN
 window.login = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
+    await signInWithEmailAndPassword(
+      auth,
+      email.value,
+      password.value
+    );
+  } catch (e) {
+    alert(e.message);
   }
 };
 
+// 🔐 SIGNUP
 window.signup = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      email.value,
+      password.value
+    );
 
-    // create user role
-    await setDoc(doc(db, "users", cred.user.uid), {
+    await setDoc(doc(db, "Users", cred.user.uid), {
       role: "reader"
     });
 
-    alert("Signup successful!");
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
+    alert("Signup success!");
+  } catch (e) {
+    alert(e.message);
   }
 };
 
-window.logout = function () {
-  signOut(auth);
-};
+window.logout = () => signOut(auth);
 
 
-// 👀 AUTH STATE (WITH ROLE)
+// 👀 AUTH STATE
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
 
     // GET ROLE
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
+    const snap = await getDoc(doc(db, "Users", user.uid));
 
-      if (snap.exists()) {
-        currentUserRole = snap.data().role;
-      } else {
-        currentUserRole = "reader";
-      }
-    } catch (err) {
-      console.error(err);
-      currentUserRole = "reader";
-    }
+    currentUserRole = snap.exists()
+      ? snap.data().role
+      : "reader";
 
-    // SHOW / HIDE WRITER UI
-    const writerSection = document.getElementById("writerSection");
-    if (writerSection) {
-      writerSection.style.display =
-        currentUserRole === "writer" ? "block" : "none";
-    }
+    console.log("ROLE:", currentUserRole);
 
-    document.getElementById("authScreen").style.display = "none";
-    document.getElementById("appScreen").style.display = "block";
-    document.getElementById("bookPage").style.display = "none";
-    document.getElementById("readerMode").style.display = "none";
+    // UI CONTROL
+    document.getElementById("writerSection").style.display =
+      currentUserRole === "writer" ? "block" : "none";
+
+    document.getElementById("writerBookControls").style.display =
+      currentUserRole === "writer" ? "block" : "none";
+
+    authScreen.style.display = "none";
+    appScreen.style.display = "block";
 
     loadBooks();
+
   } else {
-    document.getElementById("authScreen").style.display = "flex";
-    document.getElementById("appScreen").style.display = "none";
+    authScreen.style.display = "flex";
+    appScreen.style.display = "none";
   }
 });
 
 
-// 📚 ADD BOOK (WRITER ONLY)
+// 📚 ADD BOOK
 window.addBook = async function () {
-  if (currentUserRole !== "writer") {
-    alert("Only writers can create books.");
-    return;
-  }
-
-  const title = document.getElementById("title").value;
-  const genre = document.getElementById("genre").value;
-  const coverURL = document.getElementById("coverURL").value;
-  const synopsis = document.getElementById("synopsis").value;
-
-  if (!title) {
-    alert("Title required!");
-    return;
-  }
+  if (currentUserRole !== "writer") return alert("Not allowed");
 
   await addDoc(collection(db, "books"), {
-    title,
-    genre,
-    coverURL,
-    synopsis,
-    userId: currentUser.uid,
-    createdAt: Date.now()
+    title: title.value,
+    genre: genre.value,
+    coverURL: coverURL.value,
+    synopsis: synopsis.value,
+    userId: currentUser.uid
   });
 
-  document.getElementById("status").innerText = "Book created!";
-
-  clearInputs();
   loadBooks();
 };
 
 
-// 🧹 CLEAR INPUTS
-function clearInputs() {
-  document.getElementById("title").value = "";
-  document.getElementById("genre").value = "";
-  document.getElementById("coverURL").value = "";
-  document.getElementById("synopsis").value = "";
-}
-
-
 // 📚 LOAD BOOKS
 async function loadBooks() {
-  if (!currentUser) return;
-
   const q = query(
     collection(db, "books"),
     where("userId", "==", currentUser.uid)
   );
 
-  const snapshot = await getDocs(q);
+  const snap = await getDocs(q);
 
-  const container = document.getElementById("yourBooks");
-  container.innerHTML = "Loading...";
+  yourBooks.innerHTML = "";
 
-  container.innerHTML = "";
-
-  if (snapshot.empty) {
-    container.innerHTML = "No books yet.";
+  if (snap.empty) {
+    yourBooks.innerHTML = "No books yet.";
     return;
   }
 
-  snapshot.forEach((docSnap) => {
-    const book = docSnap.data();
+  snap.forEach(docSnap => {
+    const b = docSnap.data();
 
     const div = document.createElement("div");
     div.className = "book-card";
+    div.innerHTML = `<b>${b.title}</b>`;
 
-    div.innerHTML = `
-      <img src="${book.coverURL || 'https://via.placeholder.com/60x85'}" class="book-cover">
-      <div>
-        <b>${book.title}</b><br>
-        <small>${book.genre || ''}</small>
-      </div>
-    `;
+    div.onclick = () => openBook(docSnap.id, b.title);
 
-    div.onclick = () => openBook(docSnap.id, book.title);
-
-    container.appendChild(div);
+    yourBooks.appendChild(div);
   });
 }
 
 
 // 📖 OPEN BOOK
-window.openBook = function (id, title) {
+window.openBook = (id, title) => {
   currentBookId = id;
 
-  document.getElementById("appScreen").style.display = "none";
-  document.getElementById("readerMode").style.display = "none";
-  document.getElementById("bookPage").style.display = "block";
+  appScreen.style.display = "none";
+  bookPage.style.display = "block";
 
-  document.getElementById("bookTitle").innerText = title;
+  bookTitle.innerText = title;
 
   loadChapters();
 };
 
-
-// ❌ CLOSE BOOK
-window.closeBook = function () {
-  document.getElementById("bookPage").style.display = "none";
-  document.getElementById("readerMode").style.display = "none";
-  document.getElementById("appScreen").style.display = "block";
+window.closeBook = () => {
+  bookPage.style.display = "none";
+  appScreen.style.display = "block";
 };
 
 
-// ✍️ ADD CHAPTER (WRITER ONLY)
+// ✍️ ADD CHAPTER
 window.addChapter = async function () {
-  if (currentUserRole !== "writer") {
-    alert("Only writers can add chapters.");
-    return;
-  }
+  if (currentUserRole !== "writer") return;
 
-  if (!currentBookId) return;
-
-  const title = document.getElementById("chapterTitle").value;
-  const content = document.getElementById("chapterContent").value;
-
-  await addDoc(collection(db, "books", currentBookId, "chapters"), {
-    title,
-    content,
-    createdAt: Date.now()
-  });
-
-  document.getElementById("chapterTitle").value = "";
-  document.getElementById("chapterContent").value = "";
+  await addDoc(
+    collection(db, "books", currentBookId, "chapters"),
+    {
+      title: chapterTitle.value,
+      content: chapterContent.value
+    }
+  );
 
   loadChapters();
 };
@@ -264,68 +186,50 @@ window.addChapter = async function () {
 
 // 📑 LOAD CHAPTERS
 async function loadChapters() {
-  const container = document.getElementById("chapterList");
-  container.innerHTML = "Loading...";
+  if (!currentBookId) return;
 
-  try {
-    const snapshot = await getDocs(
-      collection(db, "books", currentBookId, "chapters")
-    );
+  const snap = await getDocs(
+    collection(db, "books", currentBookId, "chapters")
+  );
 
-    container.innerHTML = "";
+  chapterList.innerHTML = "";
 
-    if (snapshot.empty) {
-      container.innerHTML = "No chapters yet.";
-      return;
-    }
-
-    snapshot.forEach((docSnap) => {
-      const chapter = docSnap.data();
-
-      const div = document.createElement("div");
-      div.className = "book-card";
-
-      div.innerHTML = `<strong>${chapter.title}</strong>`;
-
-      div.onclick = () => openReader(chapter);
-
-      container.appendChild(div);
-    });
-
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = "Failed to load chapters.";
-  }
-}
-
-
-// 📖 READER MODE
-window.openReader = function (chapter) {
-  document.getElementById("appScreen").style.display = "none";
-  document.getElementById("bookPage").style.display = "none";
-  document.getElementById("readerMode").style.display = "block";
-
-  document.getElementById("readerTitle").innerText = chapter.title;
-  document.getElementById("readerContent").innerText = chapter.content;
-};
-
-window.closeReader = function () {
-  document.getElementById("readerMode").style.display = "none";
-  document.getElementById("bookPage").style.display = "block";
-};
-
-
-// 🗑 DELETE BOOK
-window.deleteBook = async function () {
-  if (currentUserRole !== "writer") {
-    alert("Only writers can delete books.");
+  if (snap.empty) {
+    chapterList.innerHTML = "No chapters.";
     return;
   }
 
-  if (!currentBookId) return;
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
 
-  const confirmDelete = confirm("Delete this book?");
-  if (!confirmDelete) return;
+    const div = document.createElement("div");
+    div.innerHTML = c.title;
+
+    div.onclick = () => openReader(c);
+
+    chapterList.appendChild(div);
+  });
+}
+
+
+// 📖 READER
+window.openReader = (c) => {
+  readerMode.style.display = "block";
+  bookPage.style.display = "none";
+
+  readerTitle.innerText = c.title;
+  readerContent.innerText = c.content;
+};
+
+window.closeReader = () => {
+  readerMode.style.display = "none";
+  bookPage.style.display = "block";
+};
+
+
+// 🗑 DELETE
+window.deleteBook = async function () {
+  if (currentUserRole !== "writer") return;
 
   await deleteDoc(doc(db, "books", currentBookId));
 
@@ -336,6 +240,6 @@ window.deleteBook = async function () {
 
 // ☰ MENU
 window.toggleMenu = function () {
-  const d = document.getElementById("dropdown");
-  d.style.display = d.style.display === "block" ? "none" : "block";
+  dropdown.style.display =
+    dropdown.style.display === "block" ? "none" : "block";
 };
