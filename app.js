@@ -1,5 +1,6 @@
 // 🔥 FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -14,8 +15,11 @@ import {
   addDoc,
   query,
   where,
-  getDocs
+  getDocs,
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 
 // 🔑 CONFIG
 const firebaseConfig = {
@@ -24,12 +28,15 @@ const firebaseConfig = {
   projectId: "pixieish-shelves",
 };
 
+
 // 🚀 INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+let currentBookId = null;
+
 
 // 🎬 SPLASH
 setTimeout(() => {
@@ -40,17 +47,18 @@ setTimeout(() => {
   }, 800);
 }, 1500);
 
+
 // 🔐 AUTH
 window.login = async function () {
-  const email = emailInput();
-  const password = passwordInput();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
   await signInWithEmailAndPassword(auth, email, password);
 };
 
 window.signup = async function () {
-  const email = emailInput();
-  const password = passwordInput();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
   await createUserWithEmailAndPassword(auth, email, password);
 };
@@ -59,13 +67,6 @@ window.logout = function () {
   signOut(auth);
 };
 
-function emailInput() {
-  return document.getElementById("email").value;
-}
-
-function passwordInput() {
-  return document.getElementById("password").value;
-}
 
 // 👀 AUTH STATE
 onAuthStateChanged(auth, (user) => {
@@ -81,6 +82,7 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("appScreen").style.display = "none";
   }
 });
+
 
 // 📚 ADD BOOK
 window.addBook = async function () {
@@ -109,6 +111,8 @@ window.addBook = async function () {
   loadBooks();
 };
 
+
+// 🧹 CLEAR INPUTS
 function clearInputs() {
   document.getElementById("title").value = "";
   document.getElementById("genre").value = "";
@@ -116,7 +120,8 @@ function clearInputs() {
   document.getElementById("synopsis").value = "";
 }
 
-// 📖 LOAD BOOKS
+
+// 📚 LOAD BOOKS (UPDATED)
 async function loadBooks() {
   const q = query(
     collection(db, "books"),
@@ -126,23 +131,125 @@ async function loadBooks() {
   const snapshot = await getDocs(q);
 
   const container = document.getElementById("yourBooks");
+  container.innerHTML = "Loading...";
+
   container.innerHTML = "";
 
-  snapshot.forEach((doc) => {
-    const book = doc.data();
+  snapshot.forEach((docSnap) => {
+    const book = docSnap.data();
 
-    container.innerHTML += `
-      <div class="book-card">
-        <img src="${book.coverURL || ''}" class="book-cover">
-        <div>
-          <b>${book.title}</b><br>
-          <small>${book.genre || ''}</small><br>
-          <small>${book.synopsis || ''}</small>
-        </div>
+    const div = document.createElement("div");
+    div.className = "book-card";
+
+    div.innerHTML = `
+      <img src="${book.coverURL || 'https://via.placeholder.com/60x85'}" class="book-cover">
+      <div>
+        <b>${book.title}</b><br>
+        <small>${book.genre || ''}</small>
       </div>
     `;
+
+    div.onclick = () => openBook(docSnap.id, book.title);
+
+    container.appendChild(div);
   });
 }
+
+
+// 📖 OPEN BOOK
+window.openBook = function (id, title) {
+  currentBookId = id;
+
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("bookPage").style.display = "block";
+
+  document.getElementById("bookTitle").innerText = title;
+
+  loadChapters();
+};
+
+
+// ❌ CLOSE BOOK
+window.closeBook = function () {
+  document.getElementById("bookPage").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+};
+
+
+// ✍️ ADD CHAPTER
+window.addChapter = async function () {
+  if (!currentBookId) return;
+
+  const title = document.getElementById("chapterTitle").value;
+  const content = document.getElementById("chapterContent").value;
+
+  await addDoc(collection(db, "books", currentBookId, "chapters"), {
+    title,
+    content,
+    createdAt: Date.now()
+  });
+
+  document.getElementById("chapterTitle").value = "";
+  document.getElementById("chapterContent").value = "";
+
+  loadChapters();
+};
+
+
+// 📑 LOAD CHAPTERS
+async function loadChapters() {
+  const container = document.getElementById("chapterList");
+  container.innerHTML = "Loading...";
+
+  const snapshot = await getDocs(
+    collection(db, "books", currentBookId, "chapters")
+  );
+
+  container.innerHTML = "";
+
+  snapshot.forEach((docSnap) => {
+    const chapter = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "book-card";
+
+    div.innerHTML = `<strong>${chapter.title}</strong>`;
+
+    div.onclick = () => openReader(chapter);
+
+    container.appendChild(div);
+  });
+}
+
+
+// 📖 READER MODE
+window.openReader = function (chapter) {
+  document.getElementById("readerMode").style.display = "block";
+  document.getElementById("bookPage").style.display = "none";
+
+  document.getElementById("readerTitle").innerText = chapter.title;
+  document.getElementById("readerContent").innerText = chapter.content;
+};
+
+window.closeReader = function () {
+  document.getElementById("readerMode").style.display = "none";
+  document.getElementById("bookPage").style.display = "block";
+};
+
+
+// 🗑 DELETE BOOK
+window.deleteBook = async function () {
+  if (!currentBookId) return;
+
+  const confirmDelete = confirm("Delete this book?");
+  if (!confirmDelete) return;
+
+  await deleteDoc(doc(db, "books", currentBookId));
+
+  closeBook();
+  loadBooks();
+};
+
 
 // ☰ MENU
 window.toggleMenu = function () {
