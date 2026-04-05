@@ -1,29 +1,40 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  onAuthStateChanged, signOut
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
-  getFirestore, collection, addDoc, query, where,
-  getDocs, doc, deleteDoc, setDoc, getDoc
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  doc,
+  deleteDoc,
+  setDoc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// ✅ FINAL CONFIG (FIXED)
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.appspot.com", // ✅ FIXED
+  storageBucket: "pixieish-shelves.appspot.com",
   messagingSenderId: "458160398514",
-  appId: "1:458160398514:web:b8bd9d073d5823575b29ab",
-  measurementId: "G-5K5L5N9X8B"
+  appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ✅ DOM FIX (THIS WAS YOUR MAIN BUG)
+// DOM
 const splash = document.getElementById("splash");
 const authScreen = document.getElementById("authScreen");
 const appScreen = document.getElementById("appScreen");
@@ -56,32 +67,42 @@ let currentUser = null;
 let currentBookId = null;
 let currentUserRole = "reader";
 
-// SPLASH FIX
+// SPLASH
 setTimeout(() => {
   splash.style.display = "none";
   authScreen.style.display = "block";
 }, 1500);
 
-// LOGIN
+// ✅ LOGIN (IMPROVED)
 window.login = async () => {
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
+    const userEmail = email.value.trim();
+    const userPass = password.value.trim();
+
+    await signInWithEmailAndPassword(auth, userEmail, userPass);
+
   } catch (e) {
-    alert(e.message);
+    console.log("LOGIN ERROR:", e.code, e.message);
+    alert("Login failed: " + e.code);
   }
 };
 
-// SIGNUP
+// ✅ SIGNUP
 window.signup = async () => {
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    const userEmail = email.value.trim();
+    const userPass = password.value.trim();
+
+    const cred = await createUserWithEmailAndPassword(auth, userEmail, userPass);
 
     await setDoc(doc(db, "Users", cred.user.uid), {
       role: "reader"
     });
 
-    alert("Signup success");
+    alert("Signup success! Now login.");
+
   } catch (e) {
+    console.log("SIGNUP ERROR:", e.code);
     alert(e.message);
   }
 };
@@ -116,7 +137,10 @@ onAuthStateChanged(auth, async (user) => {
 
 // ADD BOOK
 window.addBook = async () => {
-  if (currentUserRole !== "writer") return alert("Not allowed");
+  if (currentUserRole !== "writer") {
+    alert("Switch your role to writer in Firestore.");
+    return;
+  }
 
   await addDoc(collection(db, "books"), {
     title: title.value,
@@ -126,14 +150,18 @@ window.addBook = async () => {
     userId: currentUser.uid
   });
 
+  alert("Book created!");
   loadBooks();
 };
 
 // LOAD BOOKS
 async function loadBooks() {
-  const q = query(collection(db, "books"), where("userId", "==", currentUser.uid));
-  const snap = await getDocs(q);
+  const q = query(
+    collection(db, "books"),
+    where("userId", "==", currentUser.uid)
+  );
 
+  const snap = await getDocs(q);
   yourBooks.innerHTML = "";
 
   if (snap.empty) {
@@ -184,9 +212,9 @@ window.addChapter = async () => {
 
 // LOAD CHAPTERS
 async function loadChapters() {
-  if (!currentBookId) return;
-
-  const snap = await getDocs(collection(db, "books", currentBookId, "chapters"));
+  const snap = await getDocs(
+    collection(db, "books", currentBookId, "chapters")
+  );
 
   chapterList.innerHTML = "";
 
@@ -216,7 +244,7 @@ window.closeReader = () => {
   bookPage.style.display = "block";
 };
 
-// DELETE
+// DELETE BOOK
 window.deleteBook = async () => {
   if (currentUserRole !== "writer") return;
 
