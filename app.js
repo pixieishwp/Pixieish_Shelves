@@ -1,218 +1,151 @@
-/* 🔥 FIREBASE IMPORTS */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
+// 🔥 FIREBASE IMPORTS
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
   query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* 🔥 CONFIG */
+// 🔑 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
   projectId: "pixieish-shelves",
-  storageBucket: "pixieish-shelves.firebasestorage.app",
-  messagingSenderId: "458160398514",
-  appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-/* 🔥 INIT */
+// 🚀 INIT
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 👑 OWNER LOCK */
-const OWNER_EMAIL = "pixieishwp@gmail.com";
+let currentUser = null;
 
-/* 📌 STATE */
-let currentBookId = null;
-
-/* 🌸 SPLASH */
-window.addEventListener("load", () => {
-  const splash = document.getElementById("splash");
-
+// 🎬 SPLASH
+setTimeout(() => {
+  document.getElementById("splash").style.opacity = "0";
   setTimeout(() => {
-    splash.style.opacity = "0";
-    setTimeout(() => splash.style.display = "none", 500);
-  }, 1500);
-});
+    document.getElementById("splash").style.display = "none";
+    document.getElementById("authScreen").style.display = "flex";
+  }, 800);
+}, 1500);
 
-/* 🔐 AUTH */
+// 🔐 AUTH
 window.login = async function () {
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      document.getElementById("email").value,
-      document.getElementById("password").value
-    );
-  } catch (e) {
-    document.getElementById("authStatus").innerText = e.message;
-  }
+  const email = emailInput();
+  const password = passwordInput();
+
+  await signInWithEmailAndPassword(auth, email, password);
 };
 
 window.signup = async function () {
-  try {
-    await createUserWithEmailAndPassword(
-      auth,
-      document.getElementById("email").value,
-      document.getElementById("password").value
-    );
-    document.getElementById("authStatus").innerText = "Account created!";
-  } catch (e) {
-    document.getElementById("authStatus").innerText = e.message;
-  }
+  const email = emailInput();
+  const password = passwordInput();
+
+  await createUserWithEmailAndPassword(auth, email, password);
 };
 
 window.logout = function () {
   signOut(auth);
 };
 
-/* 🔄 AUTH STATE */
+function emailInput() {
+  return document.getElementById("email").value;
+}
+
+function passwordInput() {
+  return document.getElementById("password").value;
+}
+
+// 👀 AUTH STATE
 onAuthStateChanged(auth, (user) => {
-  const authScreen = document.getElementById("authScreen");
-  const appScreen = document.getElementById("appScreen");
-  const writerCard = document.getElementById("writerCard");
-
   if (user) {
-    authScreen.style.display = "none";
-    appScreen.style.display = "block";
+    currentUser = user;
 
-    /* 🔐 LOCK WRITER MODE */
-    if (user.email === OWNER_EMAIL) {
-      writerCard.style.display = "block";
-    } else {
-      writerCard.style.display = "none";
-    }
+    document.getElementById("authScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "block";
 
     loadBooks();
   } else {
-    appScreen.style.display = "none";
-    authScreen.style.display = "flex";
+    document.getElementById("authScreen").style.display = "flex";
+    document.getElementById("appScreen").style.display = "none";
   }
 });
 
-/* ☰ MENU */
-window.toggleMenu = function () {
-  const menu = document.getElementById("dropdown");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-};
-
-/* 📚 CREATE BOOK */
+// 📚 ADD BOOK
 window.addBook = async function () {
-  const user = auth.currentUser;
+  const title = document.getElementById("title").value;
+  const genre = document.getElementById("genre").value;
+  const coverURL = document.getElementById("coverURL").value;
+  const synopsis = document.getElementById("synopsis").value;
 
-  if (!user || user.email !== OWNER_EMAIL) {
-    alert("Not allowed.");
+  if (!title) {
+    alert("Title required!");
     return;
   }
 
-  const docRef = await addDoc(collection(db, "books"), {
-    title: document.getElementById("title").value,
-    synopsis: document.getElementById("synopsis").value,
-    genre: document.getElementById("genre").value,
-    cover: document.getElementById("coverURL").value,
-    userId: user.uid
+  await addDoc(collection(db, "books"), {
+    title,
+    genre,
+    coverURL,
+    synopsis,
+    userId: currentUser.uid,
+    createdAt: Date.now()
   });
 
-  currentBookId = docRef.id;
+  document.getElementById("status").innerText = "Book created!";
 
-  document.getElementById("status").innerText =
-    "Book created! Now add chapters.";
+  clearInputs();
+  loadBooks();
 };
 
-/* ✍️ ADD CHAPTER */
-window.addChapter = async function () {
-  if (!currentBookId) {
-    alert("Create a book first!");
-    return;
-  }
+function clearInputs() {
+  document.getElementById("title").value = "";
+  document.getElementById("genre").value = "";
+  document.getElementById("coverURL").value = "";
+  document.getElementById("synopsis").value = "";
+}
 
-  await addDoc(
-    collection(db, "books", currentBookId, "chapters"),
-    {
-      title: document.getElementById("chapterTitle").value,
-      content: document.getElementById("chapterContent").value
-    }
-  );
-
-  alert("Chapter added!");
-};
-
-/* 📚 LOAD BOOKS */
+// 📖 LOAD BOOKS
 async function loadBooks() {
-  const user = auth.currentUser;
-  const container = document.getElementById("yourBooks");
-
-  container.innerHTML = "";
-
   const q = query(
     collection(db, "books"),
-    where("userId", "==", user.uid)
+    where("userId", "==", currentUser.uid)
   );
 
   const snapshot = await getDocs(q);
 
-  snapshot.forEach((docItem) => {
-    const book = docItem.data();
+  const container = document.getElementById("yourBooks");
+  container.innerHTML = "";
 
-    const div = document.createElement("div");
-    div.className = "book-card";
+  snapshot.forEach((doc) => {
+    const book = doc.data();
 
-    div.innerHTML = `
-      <img src="${book.cover || 'https://via.placeholder.com/60x85'}" class="book-cover">
-      <div>
-        <strong>${book.title}</strong>
-        <p>${book.genre}</p>
-        <small>${book.synopsis}</small>
+    container.innerHTML += `
+      <div class="book-card">
+        <img src="${book.coverURL || ''}" class="book-cover">
+        <div>
+          <b>${book.title}</b><br>
+          <small>${book.genre || ''}</small><br>
+          <small>${book.synopsis || ''}</small>
+        </div>
       </div>
     `;
-
-    div.onclick = () => openReader(book, docItem.id);
-
-    container.appendChild(div);
   });
 }
 
-/* 📖 READER (FIXED) */
-window.openReader = async function (book, bookId) {
-  document.getElementById("readerMode").style.display = "block";
-  document.getElementById("mainContainer").style.display = "none";
-
-  document.getElementById("readerTitle").innerText = book.title;
-  document.getElementById("readerContent").innerHTML = "Loading...";
-
-  const snapshot = await getDocs(
-    collection(db, "books", bookId, "chapters")
-  );
-
-  let content = "";
-
-  if (snapshot.empty) {
-    content = "<p>No chapters yet. ✍️</p>";
-  } else {
-    snapshot.forEach((doc) => {
-      const ch = doc.data();
-      content += `<h3>${ch.title}</h3><p>${ch.content}</p><br>`;
-    });
-  }
-
-  document.getElementById("readerContent").innerHTML = content;
-};
-
-/* ❌ CLOSE READER */
-window.closeReader = function () {
-  document.getElementById("readerMode").style.display = "none";
-  document.getElementById("mainContainer").style.display = "block";
+// ☰ MENU
+window.toggleMenu = function () {
+  const d = document.getElementById("dropdown");
+  d.style.display = d.style.display === "block" ? "none" : "block";
 };
