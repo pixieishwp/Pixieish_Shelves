@@ -75,6 +75,8 @@ onAuthStateChanged(auth, (user) => {
 
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
+    document.getElementById("bookPage").style.display = "none";
+    document.getElementById("readerMode").style.display = "none";
 
     loadBooks();
   } else {
@@ -121,7 +123,7 @@ function clearInputs() {
 }
 
 
-// 📚 LOAD BOOKS (UPDATED)
+// 📚 LOAD BOOKS
 async function loadBooks() {
   const q = query(
     collection(db, "books"),
@@ -161,6 +163,7 @@ window.openBook = function (id, title) {
   currentBookId = id;
 
   document.getElementById("appScreen").style.display = "none";
+  document.getElementById("readerMode").style.display = "none";
   document.getElementById("bookPage").style.display = "block";
 
   document.getElementById("bookTitle").innerText = title;
@@ -172,6 +175,7 @@ window.openBook = function (id, title) {
 // ❌ CLOSE BOOK
 window.closeBook = function () {
   document.getElementById("bookPage").style.display = "none";
+  document.getElementById("readerMode").style.display = "none";
   document.getElementById("appScreen").style.display = "block";
 };
 
@@ -196,36 +200,48 @@ window.addChapter = async function () {
 };
 
 
-// 📑 LOAD CHAPTERS
+// 📑 LOAD CHAPTERS (FIXED)
 async function loadChapters() {
   const container = document.getElementById("chapterList");
   container.innerHTML = "Loading...";
 
-  const snapshot = await getDocs(
-    collection(db, "books", currentBookId, "chapters")
-  );
+  try {
+    const snapshot = await getDocs(
+      collection(db, "books", currentBookId, "chapters")
+    );
 
-  container.innerHTML = "";
+    container.innerHTML = "";
 
-  snapshot.forEach((docSnap) => {
-    const chapter = docSnap.data();
+    if (snapshot.empty) {
+      container.innerHTML = "No chapters yet.";
+      return;
+    }
 
-    const div = document.createElement("div");
-    div.className = "book-card";
+    snapshot.forEach((docSnap) => {
+      const chapter = docSnap.data();
 
-    div.innerHTML = `<strong>${chapter.title}</strong>`;
+      const div = document.createElement("div");
+      div.className = "book-card";
 
-    div.onclick = () => openReader(chapter);
+      div.innerHTML = `<strong>${chapter.title}</strong>`;
 
-    container.appendChild(div);
-  });
+      div.onclick = () => openReader(chapter);
+
+      container.appendChild(div);
+    });
+
+  } catch (error) {
+    console.error("ERROR loading chapters:", error);
+    container.innerHTML = "Failed to load chapters.";
+  }
 }
 
 
-// 📖 READER MODE
+// 📖 READER MODE (FIXED)
 window.openReader = function (chapter) {
-  document.getElementById("readerMode").style.display = "block";
+  document.getElementById("appScreen").style.display = "none";
   document.getElementById("bookPage").style.display = "none";
+  document.getElementById("readerMode").style.display = "block";
 
   document.getElementById("readerTitle").innerText = chapter.title;
   document.getElementById("readerContent").innerText = chapter.content;
