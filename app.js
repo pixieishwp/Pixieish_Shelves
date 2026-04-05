@@ -56,15 +56,32 @@ window.login = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  await signInWithEmailAndPassword(auth, email, password);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 };
 
 window.signup = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
+    // 👇 create user role
+    await setDoc(doc(db, "users", cred.user.uid), {
+      role: "reader"
+    });
+
+    alert("Signup successful!");
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+};
   // 👇 DEFAULT ROLE = READER
   await setDoc(doc(db, "users", cred.user.uid), {
     role: "reader"
