@@ -46,20 +46,25 @@
   <!-- MAIN -->
   <div class="container">
 
-    <!-- ✍️ WRITER MODE -->
-    <div class="card" id="writerCard">
-      <h3>✍️ Writer Mode</h3>
+ <div id="writerSection">
 
-      <input id="title" placeholder="Book Title">
-      <input id="genre" placeholder="Genre">
-      <input id="coverURL" placeholder="Cover Image URL (optional)">
-      <textarea id="synopsis" placeholder="Short synopsis..."></textarea>
+  <!-- ✍️ WRITER MODE -->
+  <div class="card" id="writerCard">
 
-      <button onclick="addBook()">Create Book</button>
+    <h3>✍️ Writer Mode</h3>
 
-      <p id="status"></p>
-    </div>
+    <input id="title" placeholder="Book Title">
+    <input id="genre" placeholder="Genre">
+    <input id="coverURL" placeholder="Cover Image URL (optional)">
+    <textarea id="synopsis" placeholder="Short synopsis..."></textarea>
 
+    <button onclick="addBook()">Create Book</button>
+
+    <p id="status"></p>
+
+  </div>
+
+</div>
     <!-- 📚 LIBRARY -->
     <div class="card">
       <h3>Your Library</h3>
