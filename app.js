@@ -23,6 +23,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
+// 🔑 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -32,6 +33,7 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab",
   measurementId: "G-5K5L5N9X8B"
 };
+
 
 // 🚀 INIT
 const app = initializeApp(firebaseConfig);
@@ -73,7 +75,7 @@ window.signup = async function () {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // 👇 create user role
+    // create user role
     await setDoc(doc(db, "users", cred.user.uid), {
       role: "reader"
     });
@@ -84,37 +86,36 @@ window.signup = async function () {
     alert(error.message);
   }
 };
-  // 👇 DEFAULT ROLE = READER
-  await setDoc(doc(db, "users", cred.user.uid), {
-    role: "reader"
-  });
-};
 
 window.logout = function () {
   signOut(auth);
 };
 
 
-// 👀 AUTH STATE (WITH ROLE CHECK)
+// 👀 AUTH STATE (WITH ROLE)
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
 
-    // 🔥 GET ROLE
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+    // GET ROLE
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
 
-    if (snap.exists()) {
-      currentUserRole = snap.data().role;
-    } else {
+      if (snap.exists()) {
+        currentUserRole = snap.data().role;
+      } else {
+        currentUserRole = "reader";
+      }
+    } catch (err) {
+      console.error(err);
       currentUserRole = "reader";
     }
 
-    // 🎯 SHOW/HIDE WRITER MODE
-    if (currentUserRole === "writer") {
-      document.getElementById("writerSection").style.display = "block";
-    } else {
-      document.getElementById("writerSection").style.display = "none";
+    // SHOW / HIDE WRITER UI
+    const writerSection = document.getElementById("writerSection");
+    if (writerSection) {
+      writerSection.style.display =
+        currentUserRole === "writer" ? "block" : "none";
     }
 
     document.getElementById("authScreen").style.display = "none";
@@ -130,7 +131,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 
-// 📚 ADD BOOK (ONLY WRITER)
+// 📚 ADD BOOK (WRITER ONLY)
 window.addBook = async function () {
   if (currentUserRole !== "writer") {
     alert("Only writers can create books.");
@@ -172,7 +173,7 @@ function clearInputs() {
 }
 
 
-// 📚 LOAD BOOKS (OWN ONLY)
+// 📚 LOAD BOOKS
 async function loadBooks() {
   if (!currentUser) return;
 
@@ -236,7 +237,7 @@ window.closeBook = function () {
 };
 
 
-// ✍️ ADD CHAPTER (ONLY WRITER)
+// ✍️ ADD CHAPTER (WRITER ONLY)
 window.addChapter = async function () {
   if (currentUserRole !== "writer") {
     alert("Only writers can add chapters.");
