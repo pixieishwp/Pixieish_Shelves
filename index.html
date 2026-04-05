@@ -48,7 +48,6 @@
 
     <!-- ✍️ WRITER MODE -->
     <div class="card" id="writerCard">
-
       <h3>✍️ Writer Mode</h3>
 
       <input id="title" placeholder="Book Title">
@@ -59,7 +58,6 @@
       <button onclick="addBook()">Create Book</button>
 
       <p id="status"></p>
-
     </div>
 
     <!-- 📚 LIBRARY -->
@@ -69,10 +67,50 @@
     </div>
 
   </div>
+</div>
+
+<!-- 📖 BOOK PAGE -->
+<div id="bookPage" style="display:none;" class="container">
+
+  <button onclick="closeBook()">← Back</button>
+
+  <h2 id="bookTitle"></h2>
+
+  <!-- ✍️ ADD CHAPTER -->
+  <div class="card">
+    <h3>Add Chapter</h3>
+
+    <input id="chapterTitle" placeholder="Chapter Title">
+    <textarea id="chapterContent" placeholder="Write your chapter..."></textarea>
+
+    <button onclick="addChapter()">Publish Chapter</button>
+  </div>
+
+  <!-- 📑 CHAPTER LIST -->
+  <div class="card">
+    <h3>Chapters</h3>
+    <div id="chapterList"></div>
+  </div>
+
+  <!-- 🗑 DELETE -->
+  <button onclick="deleteBook()" style="background:#e57373;">
+    Delete Book
+  </button>
 
 </div>
 
-<!-- 🔥 FIREBASE + SCRIPT -->
+<!-- 📖 READER MODE -->
+<div id="readerMode" style="display:none;" class="container">
+
+  <button onclick="closeReader()">← Back</button>
+
+  <h2 id="readerTitle"></h2>
+
+  <div id="readerContent"></div>
+
+</div>
+
+<!-- 🔥 SCRIPT -->
 <script type="module" src="app.js"></script>
 
 </body>
