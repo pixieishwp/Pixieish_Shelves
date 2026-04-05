@@ -82,11 +82,10 @@ window.login = async () => {
     await signInWithEmailAndPassword(auth, userEmail, userPass);
 
   } catch (e) {
-    console.log("LOGIN ERROR:", e.code, e.message);
-    alert("Login failed: " + e.code);
+    console.log("FULL ERROR:", e);
+    alert(e.code + " | " + e.message);
   }
 };
-
 // ✅ SIGNUP
 window.signup = async () => {
   try {
