@@ -17,7 +17,9 @@ import {
   where,
   getDocs,
   doc,
-  deleteDoc
+  deleteDoc,
+  setDoc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -36,6 +38,7 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let currentBookId = null;
+let currentUserRole = "reader";
 
 
 // 🎬 SPLASH
@@ -60,7 +63,12 @@ window.signup = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  await createUserWithEmailAndPassword(auth, email, password);
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+  // 👇 DEFAULT ROLE = READER
+  await setDoc(doc(db, "users", cred.user.uid), {
+    role: "reader"
+  });
 };
 
 window.logout = function () {
@@ -68,10 +76,27 @@ window.logout = function () {
 };
 
 
-// 👀 AUTH STATE
-onAuthStateChanged(auth, (user) => {
+// 👀 AUTH STATE (WITH ROLE CHECK)
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
+
+    // 🔥 GET ROLE
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+    if (snap.exists()) {
+      currentUserRole = snap.data().role;
+    } else {
+      currentUserRole = "reader";
+    }
+
+    // 🎯 SHOW/HIDE WRITER MODE
+    if (currentUserRole === "writer") {
+      document.getElementById("writerSection").style.display = "block";
+    } else {
+      document.getElementById("writerSection").style.display = "none";
+    }
 
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
@@ -86,8 +111,13 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// 📚 ADD BOOK
+// 📚 ADD BOOK (ONLY WRITER)
 window.addBook = async function () {
+  if (currentUserRole !== "writer") {
+    alert("Only writers can create books.");
+    return;
+  }
+
   const title = document.getElementById("title").value;
   const genre = document.getElementById("genre").value;
   const coverURL = document.getElementById("coverURL").value;
@@ -123,8 +153,10 @@ function clearInputs() {
 }
 
 
-// 📚 LOAD BOOKS
+// 📚 LOAD BOOKS (OWN ONLY)
 async function loadBooks() {
+  if (!currentUser) return;
+
   const q = query(
     collection(db, "books"),
     where("userId", "==", currentUser.uid)
@@ -136,6 +168,11 @@ async function loadBooks() {
   container.innerHTML = "Loading...";
 
   container.innerHTML = "";
+
+  if (snapshot.empty) {
+    container.innerHTML = "No books yet.";
+    return;
+  }
 
   snapshot.forEach((docSnap) => {
     const book = docSnap.data();
@@ -180,8 +217,13 @@ window.closeBook = function () {
 };
 
 
-// ✍️ ADD CHAPTER
+// ✍️ ADD CHAPTER (ONLY WRITER)
 window.addChapter = async function () {
+  if (currentUserRole !== "writer") {
+    alert("Only writers can add chapters.");
+    return;
+  }
+
   if (!currentBookId) return;
 
   const title = document.getElementById("chapterTitle").value;
@@ -200,7 +242,7 @@ window.addChapter = async function () {
 };
 
 
-// 📑 LOAD CHAPTERS (FIXED)
+// 📑 LOAD CHAPTERS
 async function loadChapters() {
   const container = document.getElementById("chapterList");
   container.innerHTML = "Loading...";
@@ -231,13 +273,13 @@ async function loadChapters() {
     });
 
   } catch (error) {
-    console.error("ERROR loading chapters:", error);
+    console.error(error);
     container.innerHTML = "Failed to load chapters.";
   }
 }
 
 
-// 📖 READER MODE (FIXED)
+// 📖 READER MODE
 window.openReader = function (chapter) {
   document.getElementById("appScreen").style.display = "none";
   document.getElementById("bookPage").style.display = "none";
@@ -255,6 +297,11 @@ window.closeReader = function () {
 
 // 🗑 DELETE BOOK
 window.deleteBook = async function () {
+  if (currentUserRole !== "writer") {
+    alert("Only writers can delete books.");
+    return;
+  }
+
   if (!currentBookId) return;
 
   const confirmDelete = confirm("Delete this book?");
