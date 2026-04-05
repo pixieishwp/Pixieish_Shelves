@@ -17,37 +17,37 @@ import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(fireba
       const db = dbMod.getFirestore(app);
 
       // NOW DEFINE LOGIN HERE
-      window.login = async function () {
-        try {
-          await authMod.signInWithEmailAndPassword(
-            auth,
-            document.getElementById("email").value.trim(),
-            document.getElementById("password").value.trim()
-          );
-        } catch (e) {
-          alert(e.code);
-        }
-      };
+      // ✅ LOGIN (ADD THIS)
+window.login = async function () {
+  const errorBox = document.getElementById("errorMsg");
 
-      window.signup = async function () {
-        try {
-          const cred = await authMod.createUserWithEmailAndPassword(
-            auth,
-            document.getElementById("email").value.trim(),
-            document.getElementById("password").value.trim()
-          );
+  try {
+    await authMod.signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value.trim(),
+      document.getElementById("password").value.trim()
+    );
 
-          await dbMod.setDoc(
-            dbMod.doc(db, "Users", cred.user.uid),
-            { role: "reader" }
-          );
+  } catch (e) {
+    errorBox.innerText = e.code + " | " + e.message;
+  }
+};
+     // ✅ SIGNUP (YOU ALREADY HAVE THIS)
+window.signup = async function () {
+  try {
+    const cred = await authMod.createUserWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value.trim(),
+      document.getElementById("password").value.trim()
+    );
 
-          alert("Signup success");
-        } catch (e) {
-          alert(e.code);
-        }
-      };
+    await dbMod.setDoc(
+      dbMod.doc(db, "Users", cred.user.uid),
+      { role: "reader" }
+    );
 
-    });
-  });
-});
+    alert("Signup success");
+  } catch (e) {
+    alert(e.code);
+  }
+};
