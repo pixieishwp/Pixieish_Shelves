@@ -29,8 +29,11 @@
 <!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
-  <!-- ✍️ WRITER -->
-  <div id="writerSection" style="display:none;">
+  <!-- ✅ LOGOUT BUTTON -->
+  <button onclick="logout()">Logout</button>
+
+  <!-- ✍️ WRITER (FORCED VISIBLE) -->
+  <div id="writerSection" style="display:block;">
     <h3>Writer Mode</h3>
 
     <input id="title" placeholder="Title">
@@ -53,7 +56,7 @@
 
   <h2 id="bookTitle"></h2>
 
-  <div id="writerBookControls" style="display:none;">
+  <div id="writerBookControls" style="display:block;">
     <input id="chapterTitle" placeholder="Chapter title">
     <textarea id="chapterContent"></textarea>
 
@@ -71,11 +74,6 @@
   <h2 id="readerTitle"></h2>
   <div id="readerContent"></div>
 </div>
-
-<!-- 🔥 FIREBASE (COMPAT VERSION) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script src="app.js"></script>
 
