@@ -19,7 +19,6 @@ const authScreen = document.getElementById("authScreen");
 const appScreen = document.getElementById("appScreen");
 const errorMsg = document.getElementById("errorMsg");
 
-const writerSection = document.getElementById("writerSection");
 const yourBooks = document.getElementById("yourBooks");
 
 // SPLASH
@@ -37,6 +36,11 @@ function login() {
 
   errorMsg.innerText = "";
 
+  if (!email || !password) {
+    errorMsg.innerText = "Please fill in email and password.";
+    return;
+  }
+
   auth.signInWithEmailAndPassword(email, password)
     .catch((e) => {
       errorMsg.innerText = e.code + " | " + e.message;
@@ -49,6 +53,11 @@ function signup() {
   const password = document.getElementById("password").value.trim();
 
   errorMsg.innerText = "";
+
+  if (!email || !password) {
+    errorMsg.innerText = "Please fill in email and password.";
+    return;
+  }
 
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
@@ -74,6 +83,7 @@ auth.onAuthStateChanged((user) => {
   if (user) {
     authScreen.style.display = "none";
     appScreen.style.display = "block";
+
     loadBooks(user.uid);
   } else {
     authScreen.style.display = "block";
@@ -84,30 +94,59 @@ auth.onAuthStateChanged((user) => {
 // ADD BOOK
 function addBook() {
   const user = auth.currentUser;
-  if (!user) return;
 
-  const title = document.getElementById("title").value;
+  if (!user) {
+    alert("You must be logged in.");
+    return;
+  }
+
+  const title = document.getElementById("title").value.trim();
+
+  if (!title) {
+    alert("Please enter a book title.");
+    return;
+  }
 
   db.collection("books").add({
     title: title,
-    userId: user.uid
-  }).then(() => {
+    userId: user.uid,
+    createdAt: new Date()
+  })
+  .then(() => {
+    document.getElementById("title").value = "";
     loadBooks(user.uid);
+  })
+  .catch((e) => {
+    alert(e.message);
   });
 }
 
 // LOAD BOOKS
 function loadBooks(uid) {
-  yourBooks.innerHTML = "";
+  yourBooks.innerHTML = "Loading...";
 
   db.collection("books")
     .where("userId", "==", uid)
     .get()
     .then((snap) => {
+      yourBooks.innerHTML = "";
+
+      if (snap.empty) {
+        yourBooks.innerHTML = "No books yet.";
+        return;
+      }
+
       snap.forEach(doc => {
         const div = document.createElement("div");
         div.innerText = doc.data().title;
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #ccc";
+
         yourBooks.appendChild(div);
       });
+    })
+    .catch((e) => {
+      yourBooks.innerHTML = "Error loading books.";
+      console.error(e);
     });
 }
