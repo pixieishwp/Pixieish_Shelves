@@ -23,10 +23,12 @@
   <button onclick="login()">Login</button>
   <button onclick="signup()">Sign Up</button>
 
-  <!-- ✅ ERROR MESSAGE HERE -->
   <p id="errorMsg" style="color:red;"></p>
 </div>
-  
+
+<!-- 📱 APP -->
+<div id="appScreen" style="display:none;">
+
   <!-- ✍️ WRITER -->
   <div id="writerSection" style="display:none;">
     <h3>Writer Mode</h3>
@@ -34,7 +36,7 @@
     <input id="title" placeholder="Title">
     <input id="genre" placeholder="Genre">
     <input id="coverURL" placeholder="Cover URL">
-    <textarea id="synopsis"></textarea>
+    <textarea id="synopsis" placeholder="Synopsis"></textarea>
 
     <button onclick="addBook()">Create Book</button>
   </div>
@@ -51,12 +53,11 @@
 
   <h2 id="bookTitle"></h2>
 
-  <!-- ✍️ WRITER CONTROLS -->
   <div id="writerBookControls" style="display:none;">
     <input id="chapterTitle" placeholder="Chapter title">
     <textarea id="chapterContent"></textarea>
-    <button onclick="addChapter()">Add Chapter</button>
 
+    <button onclick="addChapter()">Add Chapter</button>
     <button onclick="deleteBook()">Delete Book</button>
   </div>
 
@@ -71,6 +72,12 @@
   <div id="readerContent"></div>
 </div>
 
+<!-- 🔥 FIREBASE (COMPAT VERSION) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <script src="app.js"></script>
+
 </body>
 </html>
