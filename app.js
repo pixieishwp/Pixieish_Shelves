@@ -13,21 +13,22 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM
-const splash = document.getElementById("splash");
-const authScreen = document.getElementById("authScreen");
-const appScreen = document.getElementById("appScreen");
-const errorMsg = document.getElementById("errorMsg");
+// DOM (SAFE INIT)
+let splash, authScreen, appScreen, errorMsg, yourBooks;
 
-const yourBooks = document.getElementById("yourBooks");
+window.addEventListener("DOMContentLoaded", () => {
+  splash = document.getElementById("splash");
+  authScreen = document.getElementById("authScreen");
+  appScreen = document.getElementById("appScreen");
+  errorMsg = document.getElementById("errorMsg");
+  yourBooks = document.getElementById("yourBooks");
 
-// SPLASH
-window.onload = () => {
+  // SPLASH FIX
   setTimeout(() => {
-    splash.style.display = "none";
-    authScreen.style.display = "block";
+    if (splash) splash.style.display = "none";
+    if (authScreen) authScreen.style.display = "block";
   }, 1500);
-};
+});
 
 // LOGIN
 function login() {
@@ -80,10 +81,11 @@ function logout() {
 
 // AUTH STATE
 auth.onAuthStateChanged((user) => {
+  if (!authScreen || !appScreen) return;
+
   if (user) {
     authScreen.style.display = "none";
     appScreen.style.display = "block";
-
     loadBooks(user.uid);
   } else {
     authScreen.style.display = "block";
@@ -123,6 +125,8 @@ function addBook() {
 
 // LOAD BOOKS
 function loadBooks(uid) {
+  if (!yourBooks) return;
+
   yourBooks.innerHTML = "Loading...";
 
   db.collection("books")
