@@ -1,4 +1,5 @@
 alert("JS is running");
+
 // 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
@@ -30,10 +31,8 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔐 AUTH STATE (ONLY UI CONTROLLER)
+// 🔐 AUTH STATE
 auth.onAuthStateChanged((user) => {
-
-  // wait for splash animation first
   setTimeout(() => {
     if (splash) splash.style.display = "none";
 
@@ -45,7 +44,6 @@ auth.onAuthStateChanged((user) => {
       authScreen.style.display = "block";
       appScreen.style.display = "none";
     }
-
   }, 1500);
 });
 
@@ -117,21 +115,17 @@ function addBook() {
     synopsis,
     userId: user.uid,
     createdAt: new Date()
-  }).then(() => {
-    // clear inputs
+  })
+  .then(() => {
     document.getElementById("title").value = "";
     document.getElementById("genre").value = "";
     document.getElementById("coverURL").value = "";
     document.getElementById("synopsis").value = "";
 
     loadBooks(user.uid);
-  });
-}
-  db.collection("books").add({
-    title,
-    userId: user.uid
-  }).then(() => {
-    loadBooks(user.uid);
+  })
+  .catch((e) => {
+    alert(e.message);
   });
 }
 
@@ -167,9 +161,15 @@ function loadBooks(uid) {
 
         yourBooks.appendChild(div);
       });
+    })
+    .catch((e) => {
+      yourBooks.innerHTML = "Error loading books";
+      console.error(e);
     });
 }
-      function openBook(bookId, data) {
+
+// OPEN BOOK
+function openBook(bookId, data) {
   document.getElementById("appScreen").style.display = "none";
   document.getElementById("bookPage").style.display = "block";
 
@@ -180,11 +180,13 @@ function loadBooks(uid) {
   loadChapters(bookId);
 }
 
+// CLOSE BOOK
 function closeBook() {
   document.getElementById("bookPage").style.display = "none";
   document.getElementById("appScreen").style.display = "block";
 }
 
+// ADD CHAPTER
 function addChapter() {
   const title = document.getElementById("chapterTitle").value.trim();
   const content = document.getElementById("chapterContent").value.trim();
@@ -207,9 +209,13 @@ function addChapter() {
       document.getElementById("chapterContent").value = "";
 
       loadChapters(window.currentBookId);
+    })
+    .catch((e) => {
+      alert(e.message);
     });
 }
 
+// LOAD CHAPTERS
 function loadChapters(bookId) {
   const chapterList = document.getElementById("chapterList");
   chapterList.innerHTML = "Loading...";
@@ -217,7 +223,6 @@ function loadChapters(bookId) {
   db.collection("books")
     .doc(bookId)
     .collection("chapters")
-    .orderBy("createdAt")
     .get()
     .then((snap) => {
       chapterList.innerHTML = "";
@@ -238,5 +243,9 @@ function loadChapters(bookId) {
 
         chapterList.appendChild(div);
       });
+    })
+    .catch((e) => {
+      chapterList.innerHTML = "Error loading chapters";
+      console.error(e);
     });
-}
+    }
