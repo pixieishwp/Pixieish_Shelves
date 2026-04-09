@@ -13,9 +13,10 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM (SAFE INIT)
+// DOM
 let splash, authScreen, appScreen, errorMsg, yourBooks;
 
+// INIT APP
 window.addEventListener("DOMContentLoaded", () => {
   splash = document.getElementById("splash");
   authScreen = document.getElementById("authScreen");
@@ -23,10 +24,27 @@ window.addEventListener("DOMContentLoaded", () => {
   errorMsg = document.getElementById("errorMsg");
   yourBooks = document.getElementById("yourBooks");
 
-  // SPLASH FIX
+  // Hide everything first
+  authScreen.style.display = "none";
+  appScreen.style.display = "none";
+});
+
+// 🔐 AUTH STATE (ONLY UI CONTROLLER)
+auth.onAuthStateChanged((user) => {
+
+  // wait for splash animation first
   setTimeout(() => {
     if (splash) splash.style.display = "none";
-    if (authScreen) authScreen.style.display = "block";
+
+    if (user) {
+      authScreen.style.display = "none";
+      appScreen.style.display = "block";
+      loadBooks(user.uid);
+    } else {
+      authScreen.style.display = "block";
+      appScreen.style.display = "none";
+    }
+
   }, 1500);
 });
 
@@ -44,7 +62,7 @@ function login() {
 
   auth.signInWithEmailAndPassword(email, password)
     .catch((e) => {
-      errorMsg.innerText = e.code + " | " + e.message;
+      errorMsg.innerText = e.message;
     });
 }
 
@@ -66,11 +84,8 @@ function signup() {
         role: "reader"
       });
     })
-    .then(() => {
-      alert("Signup successful!");
-    })
     .catch((e) => {
-      errorMsg.innerText = e.code + " | " + e.message;
+      errorMsg.innerText = e.message;
     });
 }
 
@@ -79,54 +94,29 @@ function logout() {
   auth.signOut();
 }
 
-// AUTH STATE
-auth.onAuthStateChanged((user) => {
-  if (!authScreen || !appScreen) return;
-
-  if (user) {
-    authScreen.style.display = "none";
-    appScreen.style.display = "block";
-    loadBooks(user.uid);
-  } else {
-    authScreen.style.display = "block";
-    appScreen.style.display = "none";
-  }
-});
-
 // ADD BOOK
 function addBook() {
   const user = auth.currentUser;
 
-  if (!user) {
-    alert("You must be logged in.");
-    return;
-  }
+  if (!user) return;
 
   const title = document.getElementById("title").value.trim();
 
   if (!title) {
-    alert("Please enter a book title.");
+    alert("Enter title");
     return;
   }
 
   db.collection("books").add({
-    title: title,
-    userId: user.uid,
-    createdAt: new Date()
-  })
-  .then(() => {
-    document.getElementById("title").value = "";
+    title,
+    userId: user.uid
+  }).then(() => {
     loadBooks(user.uid);
-  })
-  .catch((e) => {
-    alert(e.message);
   });
 }
 
 // LOAD BOOKS
 function loadBooks(uid) {
-  if (!yourBooks) return;
-
   yourBooks.innerHTML = "Loading...";
 
   db.collection("books")
@@ -143,14 +133,7 @@ function loadBooks(uid) {
       snap.forEach(doc => {
         const div = document.createElement("div");
         div.innerText = doc.data().title;
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #ccc";
-
         yourBooks.appendChild(div);
       });
-    })
-    .catch((e) => {
-      yourBooks.innerHTML = "Error loading books.";
-      console.error(e);
     });
 }
