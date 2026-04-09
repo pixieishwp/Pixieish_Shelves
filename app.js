@@ -98,16 +98,35 @@ function logout() {
 // ADD BOOK
 function addBook() {
   const user = auth.currentUser;
-
   if (!user) return;
 
   const title = document.getElementById("title").value.trim();
+  const genre = document.getElementById("genre").value.trim();
+  const coverURL = document.getElementById("coverURL").value.trim();
+  const synopsis = document.getElementById("synopsis").value.trim();
 
   if (!title) {
     alert("Enter title");
     return;
   }
 
+  db.collection("books").add({
+    title,
+    genre,
+    coverURL,
+    synopsis,
+    userId: user.uid,
+    createdAt: new Date()
+  }).then(() => {
+    // clear inputs
+    document.getElementById("title").value = "";
+    document.getElementById("genre").value = "";
+    document.getElementById("coverURL").value = "";
+    document.getElementById("synopsis").value = "";
+
+    loadBooks(user.uid);
+  });
+}
   db.collection("books").add({
     title,
     userId: user.uid
@@ -132,9 +151,92 @@ function loadBooks(uid) {
       }
 
       snap.forEach(doc => {
+        const data = doc.data();
+
         const div = document.createElement("div");
-        div.innerText = doc.data().title;
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #ccc";
+        div.style.cursor = "pointer";
+
+        div.innerHTML = `
+          <strong>${data.title}</strong><br>
+          <small>${data.genre || ""}</small>
+        `;
+
+        div.onclick = () => openBook(doc.id, data);
+
         yourBooks.appendChild(div);
+      });
+    });
+}
+      function openBook(bookId, data) {
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("bookPage").style.display = "block";
+
+  document.getElementById("bookTitle").innerText = data.title;
+
+  window.currentBookId = bookId;
+
+  loadChapters(bookId);
+}
+
+function closeBook() {
+  document.getElementById("bookPage").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+}
+
+function addChapter() {
+  const title = document.getElementById("chapterTitle").value.trim();
+  const content = document.getElementById("chapterContent").value.trim();
+
+  if (!title || !content) {
+    alert("Fill chapter title and content");
+    return;
+  }
+
+  db.collection("books")
+    .doc(window.currentBookId)
+    .collection("chapters")
+    .add({
+      title,
+      content,
+      createdAt: new Date()
+    })
+    .then(() => {
+      document.getElementById("chapterTitle").value = "";
+      document.getElementById("chapterContent").value = "";
+
+      loadChapters(window.currentBookId);
+    });
+}
+
+function loadChapters(bookId) {
+  const chapterList = document.getElementById("chapterList");
+  chapterList.innerHTML = "Loading...";
+
+  db.collection("books")
+    .doc(bookId)
+    .collection("chapters")
+    .orderBy("createdAt")
+    .get()
+    .then((snap) => {
+      chapterList.innerHTML = "";
+
+      if (snap.empty) {
+        chapterList.innerHTML = "No chapters yet.";
+        return;
+      }
+
+      snap.forEach(doc => {
+        const data = doc.data();
+
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #ccc";
+
+        div.innerHTML = `<strong>${data.title}</strong>`;
+
+        chapterList.appendChild(div);
       });
     });
 }
