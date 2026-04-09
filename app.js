@@ -1,3 +1,4 @@
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDe8yZUNqXyP9O4yx1J8JYetJT6c7i8qdI",
   authDomain: "pixieish-shelves.firebaseapp.com",
@@ -7,47 +8,106 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-// 🔥 LOAD FIREBASE (NO MODULE)
-import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(firebase => {
-  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(authMod => {
-    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(dbMod => {
+// INIT
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-      const app = firebase.initializeApp(firebaseConfig);
-      const auth = authMod.getAuth(app);
-      const db = dbMod.getFirestore(app);
+// DOM
+const splash = document.getElementById("splash");
+const authScreen = document.getElementById("authScreen");
+const appScreen = document.getElementById("appScreen");
+const errorMsg = document.getElementById("errorMsg");
 
-      // NOW DEFINE LOGIN HERE
-      // ✅ LOGIN (ADD THIS)
-window.login = async function () {
-  const errorBox = document.getElementById("errorMsg");
+const writerSection = document.getElementById("writerSection");
+const yourBooks = document.getElementById("yourBooks");
 
-  try {
-    await authMod.signInWithEmailAndPassword(
-      auth,
-      document.getElementById("email").value.trim(),
-      document.getElementById("password").value.trim()
-    );
-
-  } catch (e) {
-    errorBox.innerText = e.code + " | " + e.message;
-  }
+// SPLASH
+window.onload = () => {
+  setTimeout(() => {
+    splash.style.display = "none";
+    authScreen.style.display = "block";
+  }, 1500);
 };
-     // ✅ SIGNUP (YOU ALREADY HAVE THIS)
-window.signup = async function () {
-  try {
-    const cred = await authMod.createUserWithEmailAndPassword(
-      auth,
-      document.getElementById("email").value.trim(),
-      document.getElementById("password").value.trim()
-    );
 
-    await dbMod.setDoc(
-      dbMod.doc(db, "Users", cred.user.uid),
-      { role: "reader" }
-    );
+// LOGIN
+function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-    alert("Signup success");
-  } catch (e) {
-    alert(e.code);
+  errorMsg.innerText = "";
+
+  auth.signInWithEmailAndPassword(email, password)
+    .catch((e) => {
+      errorMsg.innerText = e.code + " | " + e.message;
+    });
+}
+
+// SIGNUP
+function signup() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  errorMsg.innerText = "";
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((cred) => {
+      return db.collection("Users").doc(cred.user.uid).set({
+        role: "reader"
+      });
+    })
+    .then(() => {
+      alert("Signup successful!");
+    })
+    .catch((e) => {
+      errorMsg.innerText = e.code + " | " + e.message;
+    });
+}
+
+// LOGOUT
+function logout() {
+  auth.signOut();
+}
+
+// AUTH STATE
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    authScreen.style.display = "none";
+    appScreen.style.display = "block";
+    loadBooks(user.uid);
+  } else {
+    authScreen.style.display = "block";
+    appScreen.style.display = "none";
   }
-};
+});
+
+// ADD BOOK
+function addBook() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const title = document.getElementById("title").value;
+
+  db.collection("books").add({
+    title: title,
+    userId: user.uid
+  }).then(() => {
+    loadBooks(user.uid);
+  });
+}
+
+// LOAD BOOKS
+function loadBooks(uid) {
+  yourBooks.innerHTML = "";
+
+  db.collection("books")
+    .where("userId", "==", uid)
+    .get()
+    .then((snap) => {
+      snap.forEach(doc => {
+        const div = document.createElement("div");
+        div.innerText = doc.data().title;
+        yourBooks.appendChild(div);
+      });
+    });
+}
