@@ -34,7 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔐 AUTH STATE (SAFE + ROLE LOAD)
+// 🔐 AUTH STATE
 auth.onAuthStateChanged((user) => {
   setTimeout(async () => {
     if (splash) splash.style.display = "none";
@@ -60,26 +60,33 @@ auth.onAuthStateChanged((user) => {
   }, 1500);
 });
 
-// 🎭 APPLY ROLE UI
+// 🎭 APPLY ROLE UI (FULL LOCK)
 function applyRoleUI() {
   const writerSection = document.getElementById("writerSection");
+  const writerBtn = document.getElementById("writerBtn");
+  const writerControls = document.getElementById("writerBookControls");
 
   if (userRole === "reader") {
     currentMode = "reader";
+
     if (writerSection) writerSection.style.display = "none";
+    if (writerBtn) writerBtn.style.display = "none";
+    if (writerControls) writerControls.style.display = "none";
+
   } else {
     if (writerSection) writerSection.style.display = "block";
+    if (writerBtn) writerBtn.style.display = "inline-block";
+    if (writerControls) writerControls.style.display = "block";
   }
 }
 
-// 🔁 MODE SWITCH (LOCKED)
+// 🔁 MODE SWITCH (HARD LOCK)
 function setMode(mode) {
-  if (userRole === "reader" && mode === "writer") {
-    alert("Reader accounts cannot access Writer mode.");
-    return;
+  if (userRole === "reader") {
+    currentMode = "reader";
+  } else {
+    currentMode = mode;
   }
-
-  currentMode = mode;
 
   const user = auth.currentUser;
   if (user) loadBooks(user.uid);
@@ -103,7 +110,7 @@ function login() {
     });
 }
 
-// ✅ UPDATED SIGNUP (AUTO ROLE)
+// SIGNUP (AUTO ROLE)
 function signup() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -118,7 +125,6 @@ function signup() {
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
 
-      // 🔐 AUTO ROLE ASSIGN
       let role = "reader";
 
       if (email === "pixieishwp@gmail.com") {
@@ -141,6 +147,8 @@ function logout() {
 
 // ADD BOOK
 function addBook() {
+  if (userRole === "reader") return; // 🔒 BLOCK
+
   const user = auth.currentUser;
   if (!user) return;
 
@@ -238,7 +246,7 @@ function loadBooks(uid) {
     });
 }
 
-// OPEN BOOK
+// OPEN BOOK (LOCK INSIDE PAGE)
 function openBook(bookId, data) {
   document.getElementById("appScreen").style.display = "none";
   document.getElementById("bookPage").style.display = "block";
@@ -246,6 +254,14 @@ function openBook(bookId, data) {
   document.getElementById("bookTitle").innerText = data.title;
 
   window.currentBookId = bookId;
+
+  const writerControls = document.getElementById("writerBookControls");
+
+  if (userRole === "reader") {
+    if (writerControls) writerControls.style.display = "none";
+  } else {
+    if (writerControls) writerControls.style.display = "block";
+  }
 
   loadChapters(bookId);
 }
@@ -258,6 +274,8 @@ function closeBook() {
 
 // ADD CHAPTER
 function addChapter() {
+  if (userRole === "reader") return; // 🔒 BLOCK
+
   const title = document.getElementById("chapterTitle").value.trim();
   const content = document.getElementById("chapterContent").value.trim();
 
