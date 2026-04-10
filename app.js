@@ -313,14 +313,22 @@ function loadChapters(bookId) {
         return;
       }
 
-      snap.forEach((doc, index) => {
+      let count = 1; // ✅ FIXED COUNTER
+
+      snap.forEach((doc) => {
         const data = doc.data();
 
         const div = document.createElement("div");
         div.className = "chapter-card";
 
-        div.innerHTML = `<strong>${index + 1}. ${data.title}</strong>`;
+        div.innerHTML = `<strong>${count}. ${data.title}</strong>`;
 
+        chapterList.appendChild(div);
+
+        count++; // ✅ INCREMENT
+      });
+    });
+}
         // 🔥 CLICK TO EDIT
         div.onclick = () => {
           if (userRole === "writer") {
