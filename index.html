@@ -12,13 +12,13 @@
 
 <body>
 
-<!-- 🌸 SPLASH -->
+<!-- 🌸 SPLASH (UNCHANGED STRUCTURE = SAFE) -->
 <div id="splash">
   <div class="splash-title">Pixieish Shelves</div>
   <div class="splash-tagline">Your whimsical cozy-world for reading</div>
 </div>
 
-<!-- 🔐 AUTH -->
+<!-- 🔐 AUTH (UNCHANGED = SAFE) -->
 <div id="authScreen" style="display:none;">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -32,8 +32,14 @@
 <!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
-  <button onclick="logout()">Logout</button>
+  <!-- 🔝 TOP BAR (NEW but SAFE) -->
+  <div class="top-bar">
+    <button onclick="setMode('writer')">Writer</button>
+    <button onclick="setMode('reader')">Reader</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 
+  <!-- ✍️ WRITER SECTION -->
   <div id="writerSection" style="display:block;">
     <h3>Writer Mode</h3>
 
@@ -45,12 +51,13 @@
     <button onclick="addBook()">Create Book</button>
   </div>
 
-  <h3>Your Books</h3>
+  <!-- 📚 BOOKS -->
+  <h3 style="padding: 0 20px;">Your Books</h3>
   <div id="yourBooks"></div>
 
 </div>
 
-<!-- 📖 BOOK -->
+<!-- 📖 BOOK PAGE -->
 <div id="bookPage" style="display:none;">
   <button onclick="closeBook()">Back</button>
 
@@ -61,8 +68,6 @@
     <textarea id="chapterContent"></textarea>
 
     <button onclick="addChapter()">Add Chapter</button>
-    <!-- ⚠️ Remove or implement this later -->
-    <!-- <button onclick="deleteBook()">Delete Book</button> -->
   </div>
 
   <div id="chapterList"></div>
@@ -76,12 +81,12 @@
   <div id="readerContent"></div>
 </div>
 
-<!-- 🔥 FIREBASE (ORDER IS CRITICAL) -->
+<!-- 🔥 FIREBASE (DO NOT TOUCH ORDER) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<!-- 🚀 YOUR JS (MUST BE LAST, NO DEFER) -->
+<!-- 🚀 YOUR JS (LAST, NO DEFER = SAFE) -->
 <script src="app.js"></script>
 
 </body>
