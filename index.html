@@ -12,13 +12,13 @@
 
 <body>
 
-<!-- 🌸 SPLASH (UNCHANGED STRUCTURE = SAFE) -->
+<!-- 🌸 SPLASH (DO NOT TOUCH) -->
 <div id="splash">
   <div class="splash-title">Pixieish Shelves</div>
   <div class="splash-tagline">Your whimsical cozy-world for reading</div>
 </div>
 
-<!-- 🔐 AUTH (UNCHANGED = SAFE) -->
+<!-- 🔐 AUTH (DO NOT TOUCH IDS) -->
 <div id="authScreen" style="display:none;">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -32,7 +32,7 @@
 <!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
-  <!-- 🔝 TOP BAR (NEW but SAFE) -->
+  <!-- 🔝 TOP BAR -->
   <div class="top-bar">
     <button onclick="setMode('writer')">Writer</button>
     <button onclick="setMode('reader')">Reader</button>
@@ -81,12 +81,12 @@
   <div id="readerContent"></div>
 </div>
 
-<!-- 🔥 FIREBASE (DO NOT TOUCH ORDER) -->
+<!-- 🔥 FIREBASE (ORDER IS CRITICAL) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<!-- 🚀 YOUR JS (LAST, NO DEFER = SAFE) -->
+<!-- 🚀 APP JS (MUST BE LAST) -->
 <script src="app.js"></script>
 
 </body>
