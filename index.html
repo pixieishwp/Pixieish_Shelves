@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pixieish Shelves ✨</title>
+  <title>Pixieish Shelves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&display=swap" rel="stylesheet">
+  <!-- FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Crimson+Text&family=Satisfy&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,7 +14,8 @@
 
 <!-- 🌸 SPLASH -->
 <div id="splash">
-  <div class="splash-title">Pixieish Shelves ✨</div>
+  <div class="splash-title">Pixieish Shelves</div>
+  <div class="splash-tagline">Your whimsical cozy-world for reading</div>
 </div>
 
 <!-- 🔐 AUTH -->
@@ -29,10 +32,8 @@
 <!-- 📱 APP -->
 <div id="appScreen" style="display:none;">
 
-  <!-- ✅ LOGOUT BUTTON -->
   <button onclick="logout()">Logout</button>
 
-  <!-- ✍️ WRITER (FORCED VISIBLE) -->
   <div id="writerSection" style="display:block;">
     <h3>Writer Mode</h3>
 
@@ -44,7 +45,6 @@
     <button onclick="addBook()">Create Book</button>
   </div>
 
-  <!-- 📚 LIBRARY -->
   <h3>Your Books</h3>
   <div id="yourBooks"></div>
 
@@ -61,7 +61,8 @@
     <textarea id="chapterContent"></textarea>
 
     <button onclick="addChapter()">Add Chapter</button>
-    <button onclick="deleteBook()">Delete Book</button>
+    <!-- ⚠️ Remove or implement this later -->
+    <!-- <button onclick="deleteBook()">Delete Book</button> -->
   </div>
 
   <div id="chapterList"></div>
@@ -75,12 +76,13 @@
   <div id="readerContent"></div>
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- 🔥 FIREBASE (ORDER IS CRITICAL) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<!-- 🚀 YOUR JS (LAST) -->
+<!-- 🚀 YOUR JS (MUST BE LAST, NO DEFER) -->
 <script src="app.js"></script>
+
 </body>
 </html>
