@@ -142,19 +142,23 @@ button:hover {
 }
 
 .splash-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 34px;
+  font-family: 'Playlist Script', 'Satisfy', cursive;
+  font-size: 44px;
   letter-spacing: 1px;
   animation: fadeIn 1.2s ease;
   text-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .splash-tagline {
+  letter-spacing: 0.6px;
   font-family: 'Crimson Text', serif;
-  font-size: 14px;
+  font-size: 13.5px;
   color: #C89B7B;
   font-style: italic;
-  opacity: 0.9;
+  margin-top: 8px;
+  opacity: 0.85;
+  animation: fadeIn 1.6s ease;
+  text-align: center;
 }
 
 /* ✨ ANIMATION */
