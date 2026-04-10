@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-// INIT
+// INIT (SAFE)
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -21,7 +21,7 @@ let splash, authScreen, appScreen, errorMsg, yourBooks;
 // MODE
 let currentMode = "writer";
 
-// INIT APP
+// ✅ SAFE INIT (NO BREAK)
 window.addEventListener("DOMContentLoaded", () => {
   splash = document.getElementById("splash");
   authScreen = document.getElementById("authScreen");
@@ -33,14 +33,15 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔁 MODE SWITCH
+// 🔁 MODE SWITCH (SAFE)
 function setMode(mode) {
   currentMode = mode;
+
   const user = auth.currentUser;
   if (user) loadBooks(user.uid);
 }
 
-// 🔐 AUTH STATE
+// 🔐 AUTH STATE (SPLASH SAFE)
 auth.onAuthStateChanged((user) => {
   setTimeout(() => {
     if (splash) splash.style.display = "none";
@@ -102,7 +103,7 @@ function logout() {
   auth.signOut();
 }
 
-// ADD BOOK
+// ADD BOOK (FIXED SAFE DEFAULTS)
 function addBook() {
   const user = auth.currentUser;
   if (!user) return;
@@ -123,7 +124,7 @@ function addBook() {
     coverURL,
     synopsis,
     userId: user.uid,
-    status: "draft", // ⭐ NEW
+    status: "draft", // ✅ prevents undefined
     chapterCount: 0,
     wordCount: 0,
     createdAt: new Date()
@@ -141,8 +142,10 @@ function addBook() {
   });
 }
 
-// LOAD BOOKS (⭐ MAIN UPGRADE)
+// LOAD BOOKS (SAFE + UNDEFINED FIX)
 function loadBooks(uid) {
+  if (!yourBooks) return;
+
   yourBooks.innerHTML = "Loading...";
 
   db.collection("books")
@@ -159,8 +162,13 @@ function loadBooks(uid) {
       snap.forEach(doc => {
         const data = doc.data();
 
+        // ✅ FIX: fallback values
+        const status = data.status || "draft";
+        const chapterCount = data.chapterCount || 0;
+        const wordCount = data.wordCount || 0;
+
         // 📖 READER MODE → only published
-        if (currentMode === "reader" && data.status !== "published") {
+        if (currentMode === "reader" && status !== "published") {
           return;
         }
 
@@ -174,8 +182,8 @@ function loadBooks(uid) {
             <div class="card-cover"></div>
             <h4>${data.title}</h4>
             <p>${data.genre || ""}</p>
-            <small>${data.chapterCount || 0} ch · ${data.wordCount || 0} words</small>
-            <div class="status ${data.status}">${data.status}</div>
+            <small>${chapterCount} ch · ${wordCount} words</small>
+            <div class="status ${status}">${status}</div>
           `;
         } 
         
