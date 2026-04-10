@@ -18,6 +18,9 @@ const db = firebase.firestore();
 // DOM
 let splash, authScreen, appScreen, errorMsg, yourBooks;
 
+// MODE
+let currentMode = "writer";
+
 // INIT APP
 window.addEventListener("DOMContentLoaded", () => {
   splash = document.getElementById("splash");
@@ -26,10 +29,16 @@ window.addEventListener("DOMContentLoaded", () => {
   errorMsg = document.getElementById("errorMsg");
   yourBooks = document.getElementById("yourBooks");
 
-  // Hide everything first
   authScreen.style.display = "none";
   appScreen.style.display = "none";
 });
+
+// 🔁 MODE SWITCH
+function setMode(mode) {
+  currentMode = mode;
+  const user = auth.currentUser;
+  if (user) loadBooks(user.uid);
+}
 
 // 🔐 AUTH STATE
 auth.onAuthStateChanged((user) => {
@@ -114,6 +123,9 @@ function addBook() {
     coverURL,
     synopsis,
     userId: user.uid,
+    status: "draft", // ⭐ NEW
+    chapterCount: 0,
+    wordCount: 0,
     createdAt: new Date()
   })
   .then(() => {
@@ -129,7 +141,7 @@ function addBook() {
   });
 }
 
-// LOAD BOOKS
+// LOAD BOOKS (⭐ MAIN UPGRADE)
 function loadBooks(uid) {
   yourBooks.innerHTML = "Loading...";
 
@@ -147,18 +159,38 @@ function loadBooks(uid) {
       snap.forEach(doc => {
         const data = doc.data();
 
-        const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #ccc";
-        div.style.cursor = "pointer";
+        // 📖 READER MODE → only published
+        if (currentMode === "reader" && data.status !== "published") {
+          return;
+        }
 
-        div.innerHTML = `
-          <strong>${data.title}</strong><br>
-          <small>${data.genre || ""}</small>
-        `;
+        const div = document.createElement("div");
+
+        // ✍️ WRITER MODE
+        if (currentMode === "writer") {
+          div.className = "writer-card";
+
+          div.innerHTML = `
+            <div class="card-cover"></div>
+            <h4>${data.title}</h4>
+            <p>${data.genre || ""}</p>
+            <small>${data.chapterCount || 0} ch · ${data.wordCount || 0} words</small>
+            <div class="status ${data.status}">${data.status}</div>
+          `;
+        } 
+        
+        // 📚 READER MODE
+        else {
+          div.className = "reader-card";
+
+          div.innerHTML = `
+            <div class="card-cover"></div>
+            <h4>${data.title}</h4>
+            <p>${data.genre || ""}</p>
+          `;
+        }
 
         div.onclick = () => openBook(doc.id, data);
-
         yourBooks.appendChild(div);
       });
     })
@@ -232,14 +264,15 @@ function loadChapters(bookId) {
         return;
       }
 
-      snap.forEach(doc => {
+      snap.forEach((doc, index) => {
         const data = doc.data();
 
         const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #ccc";
+        div.className = "chapter-card";
 
-        div.innerHTML = `<strong>${data.title}</strong>`;
+        div.innerHTML = `
+          <strong>${index + 1}. ${data.title}</strong>
+        `;
 
         chapterList.appendChild(div);
       });
@@ -248,4 +281,4 @@ function loadChapters(bookId) {
       chapterList.innerHTML = "Error loading chapters";
       console.error(e);
     });
-    }
+}
