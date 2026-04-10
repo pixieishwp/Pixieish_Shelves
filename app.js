@@ -15,10 +15,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ✅ WRITER WHITELIST (ADD SECOND AUTHOR HERE LATER)
+// ✅ WRITER WHITELIST
 const WRITER_EMAILS = [
   "pixieishwp@gmail.com"
-  // "secondauthor@gmail.com"
 ];
 
 // DOM
@@ -27,6 +26,10 @@ let splash, authScreen, appScreen, errorMsg, yourBooks;
 // MODE + ROLE
 let currentMode = "writer";
 let userRole = "reader";
+
+// TRACK CURRENT EDIT
+window.currentChapterId = null;
+window.currentBookId = null;
 
 // INIT APP
 window.addEventListener("DOMContentLoaded", () => {
@@ -40,7 +43,7 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔐 AUTH STATE (DUAL AUTHOR SAFE)
+// 🔐 AUTH STATE
 auth.onAuthStateChanged((user) => {
   setTimeout(async () => {
     if (splash) splash.style.display = "none";
@@ -50,23 +53,14 @@ auth.onAuthStateChanged((user) => {
       appScreen.style.display = "block";
 
       try {
-        // 🔥 WRITER CHECK (WHITELIST)
         if (WRITER_EMAILS.includes(user.email)) {
           userRole = "writer";
-
-          await db.collection("Users").doc(user.uid).set({
-            role: "writer"
-          }, { merge: true });
-
+          await db.collection("Users").doc(user.uid).set({ role: "writer" }, { merge: true });
         } else {
           userRole = "reader";
-
-          await db.collection("Users").doc(user.uid).set({
-            role: "reader"
-          }, { merge: true });
+          await db.collection("Users").doc(user.uid).set({ role: "reader" }, { merge: true });
         }
-
-      } catch (e) {
+      } catch {
         userRole = "reader";
       }
 
@@ -144,12 +138,8 @@ function signup() {
 
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
-
       const role = WRITER_EMAILS.includes(email) ? "writer" : "reader";
-
-      return db.collection("Users").doc(cred.user.uid).set({
-        role: role
-      });
+      return db.collection("Users").doc(cred.user.uid).set({ role });
     })
     .catch((e) => {
       errorMsg.innerText = e.message;
@@ -194,13 +184,10 @@ function addBook() {
     document.getElementById("synopsis").value = "";
 
     loadBooks(user.uid);
-  })
-  .catch((e) => {
-    alert(e.message);
   });
 }
 
-// 📚 LOAD BOOKS (DUAL AUTHOR LOGIC)
+// LOAD BOOKS
 function loadBooks(uid) {
   if (!yourBooks) return;
 
@@ -209,50 +196,34 @@ function loadBooks(uid) {
   let query;
 
   if (userRole === "writer") {
-    // Writers see their own books
     query = db.collection("books").where("userId", "==", uid);
   } else {
-    // Readers see ALL published books
     query = db.collection("books").where("status", "==", "published");
   }
 
-  query.get()
-    .then((snap) => {
-      yourBooks.innerHTML = "";
+  query.get().then((snap) => {
+    yourBooks.innerHTML = "";
 
-      if (snap.empty) {
-        yourBooks.innerHTML = "No books available.";
-        return;
-      }
+    if (snap.empty) {
+      yourBooks.innerHTML = "No books available.";
+      return;
+    }
 
-      snap.forEach(doc => {
-        const data = doc.data();
+    snap.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
 
-        const div = document.createElement("div");
+      div.className = userRole === "writer" ? "writer-card" : "reader-card";
 
-        if (userRole === "writer") {
-          div.className = "writer-card";
-          div.innerHTML = `
-            <h4>${data.title}</h4>
-            <p>${data.genre || ""}</p>
-            <div class="status">${data.status}</div>
-          `;
-        } else {
-          div.className = "reader-card";
-          div.innerHTML = `
-            <h4>${data.title}</h4>
-            <p>${data.genre || ""}</p>
-          `;
-        }
+      div.innerHTML = `
+        <h4>${data.title}</h4>
+        <p>${data.genre || ""}</p>
+      `;
 
-        div.onclick = () => openBook(doc.id, data);
-        yourBooks.appendChild(div);
-      });
-    })
-    .catch((e) => {
-      yourBooks.innerHTML = "Error loading books";
-      console.error(e);
+      div.onclick = () => openBook(doc.id, data);
+      yourBooks.appendChild(div);
     });
+  });
 }
 
 // OPEN BOOK
@@ -262,13 +233,14 @@ function openBook(bookId, data) {
 
   document.getElementById("bookTitle").innerText = data.title;
   window.currentBookId = bookId;
+  window.currentChapterId = null;
 
   const writerControls = document.getElementById("writerBookControls");
 
   if (userRole === "reader") {
-    if (writerControls) writerControls.style.display = "none";
+    writerControls.style.display = "none";
   } else {
-    if (writerControls) writerControls.style.display = "block";
+    writerControls.style.display = "block";
   }
 
   loadChapters(bookId);
@@ -280,7 +252,7 @@ function closeBook() {
   document.getElementById("appScreen").style.display = "block";
 }
 
-// ADD CHAPTER
+// ADD / EDIT CHAPTER
 function addChapter() {
   if (userRole === "reader") return;
 
@@ -292,23 +264,39 @@ function addChapter() {
     return;
   }
 
-  db.collection("books")
-    .doc(window.currentBookId)
-    .collection("chapters")
-    .add({
+  const ref = db.collection("books").doc(window.currentBookId).collection("chapters");
+
+  if (window.currentChapterId) {
+    // ✏️ UPDATE
+    ref.doc(window.currentChapterId).update({
+      title,
+      content
+    }).then(() => {
+      resetChapterInputs();
+    });
+
+  } else {
+    // ➕ CREATE
+    ref.add({
       title,
       content,
       createdAt: new Date()
-    })
-    .then(() => {
-      document.getElementById("chapterTitle").value = "";
-      document.getElementById("chapterContent").value = "";
-
-      loadChapters(window.currentBookId);
+    }).then(() => {
+      resetChapterInputs();
     });
+  }
 }
 
-// LOAD CHAPTERS
+// RESET INPUTS
+function resetChapterInputs() {
+  document.getElementById("chapterTitle").value = "";
+  document.getElementById("chapterContent").value = "";
+  window.currentChapterId = null;
+
+  loadChapters(window.currentBookId);
+}
+
+// LOAD CHAPTERS (CLICKABLE NOW)
 function loadChapters(bookId) {
   const chapterList = document.getElementById("chapterList");
   chapterList.innerHTML = "Loading...";
@@ -332,6 +320,16 @@ function loadChapters(bookId) {
         div.className = "chapter-card";
 
         div.innerHTML = `<strong>${index + 1}. ${data.title}</strong>`;
+
+        // 🔥 CLICK TO EDIT
+        div.onclick = () => {
+          if (userRole === "writer") {
+            document.getElementById("chapterTitle").value = data.title;
+            document.getElementById("chapterContent").value = data.content;
+            window.currentChapterId = doc.id;
+          }
+        };
+
         chapterList.appendChild(div);
       });
     });
