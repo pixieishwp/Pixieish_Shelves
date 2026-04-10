@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: "1:458160398514:web:b8bd9d073d5823575b29ab"
 };
 
-// INIT (SAFE)
+// INIT
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -18,10 +18,11 @@ const db = firebase.firestore();
 // DOM
 let splash, authScreen, appScreen, errorMsg, yourBooks;
 
-// MODE
+// MODE + ROLE
 let currentMode = "writer";
+let userRole = "reader"; // default safe
 
-// ✅ SAFE INIT (NO BREAK)
+// INIT APP
 window.addEventListener("DOMContentLoaded", () => {
   splash = document.getElementById("splash");
   authScreen = document.getElementById("authScreen");
@@ -33,29 +34,56 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔁 MODE SWITCH (SAFE)
-function setMode(mode) {
-  currentMode = mode;
-
-  const user = auth.currentUser;
-  if (user) loadBooks(user.uid);
-}
-
-// 🔐 AUTH STATE (SPLASH SAFE)
+// 🔐 AUTH STATE (SAFE + ROLE LOAD)
 auth.onAuthStateChanged((user) => {
-  setTimeout(() => {
+  setTimeout(async () => {
     if (splash) splash.style.display = "none";
 
     if (user) {
       authScreen.style.display = "none";
       appScreen.style.display = "block";
+
+      try {
+        const doc = await db.collection("Users").doc(user.uid).get();
+        userRole = doc.exists ? doc.data().role : "reader";
+      } catch (e) {
+        userRole = "reader";
+      }
+
+      applyRoleUI();
       loadBooks(user.uid);
+
     } else {
       authScreen.style.display = "block";
       appScreen.style.display = "none";
     }
   }, 1500);
 });
+
+// 🎭 APPLY ROLE UI
+function applyRoleUI() {
+  const writerSection = document.getElementById("writerSection");
+
+  if (userRole === "reader") {
+    currentMode = "reader";
+    if (writerSection) writerSection.style.display = "none";
+  } else {
+    if (writerSection) writerSection.style.display = "block";
+  }
+}
+
+// 🔁 MODE SWITCH (LOCKED)
+function setMode(mode) {
+  if (userRole === "reader" && mode === "writer") {
+    alert("Reader accounts cannot access Writer mode.");
+    return;
+  }
+
+  currentMode = mode;
+
+  const user = auth.currentUser;
+  if (user) loadBooks(user.uid);
+}
 
 // LOGIN
 function login() {
@@ -75,7 +103,7 @@ function login() {
     });
 }
 
-// SIGNUP
+// ✅ UPDATED SIGNUP (AUTO ROLE)
 function signup() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -89,8 +117,16 @@ function signup() {
 
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
+
+      // 🔐 AUTO ROLE ASSIGN
+      let role = "reader";
+
+      if (email === "pixieishwp@gmail.com") {
+        role = "writer";
+      }
+
       return db.collection("Users").doc(cred.user.uid).set({
-        role: "reader"
+        role: role
       });
     })
     .catch((e) => {
@@ -103,7 +139,7 @@ function logout() {
   auth.signOut();
 }
 
-// ADD BOOK (FIXED SAFE DEFAULTS)
+// ADD BOOK
 function addBook() {
   const user = auth.currentUser;
   if (!user) return;
@@ -124,7 +160,7 @@ function addBook() {
     coverURL,
     synopsis,
     userId: user.uid,
-    status: "draft", // ✅ prevents undefined
+    status: "draft",
     chapterCount: 0,
     wordCount: 0,
     createdAt: new Date()
@@ -142,7 +178,7 @@ function addBook() {
   });
 }
 
-// LOAD BOOKS (SAFE + UNDEFINED FIX)
+// LOAD BOOKS
 function loadBooks(uid) {
   if (!yourBooks) return;
 
@@ -162,19 +198,16 @@ function loadBooks(uid) {
       snap.forEach(doc => {
         const data = doc.data();
 
-        // ✅ FIX: fallback values
         const status = data.status || "draft";
         const chapterCount = data.chapterCount || 0;
         const wordCount = data.wordCount || 0;
 
-        // 📖 READER MODE → only published
         if (currentMode === "reader" && status !== "published") {
           return;
         }
 
         const div = document.createElement("div");
 
-        // ✍️ WRITER MODE
         if (currentMode === "writer") {
           div.className = "writer-card";
 
@@ -185,10 +218,7 @@ function loadBooks(uid) {
             <small>${chapterCount} ch · ${wordCount} words</small>
             <div class="status ${status}">${status}</div>
           `;
-        } 
-        
-        // 📚 READER MODE
-        else {
+        } else {
           div.className = "reader-card";
 
           div.innerHTML = `
