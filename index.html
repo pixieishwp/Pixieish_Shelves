@@ -12,13 +12,13 @@
 
 <body>
 
-<!-- 🌸 SPLASH (DO NOT TOUCH) -->
+<!-- 🌸 SPLASH -->
 <div id="splash">
   <div class="splash-title">Pixieish Shelves</div>
   <div class="splash-tagline">Your whimsical cozy-world for reading</div>
 </div>
 
-<!-- 🔐 AUTH (DO NOT TOUCH IDS) -->
+<!-- 🔐 AUTH -->
 <div id="authScreen" style="display:none;">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -34,8 +34,8 @@
 
   <!-- 🔝 TOP BAR -->
   <div class="top-bar">
-    <button onclick="setMode('writer')">Writer</button>
-    <button onclick="setMode('reader')">Reader</button>
+    <button id="writerBtn" onclick="setMode('writer')">Writer</button>
+    <button id="readerBtn" onclick="setMode('reader')">Reader</button>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -81,12 +81,11 @@
   <div id="readerContent"></div>
 </div>
 
-<!-- 🔥 FIREBASE (ORDER IS CRITICAL) -->
+<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-<!-- 🚀 APP JS (MUST BE LAST) -->
 <script src="app.js"></script>
 
 </body>
