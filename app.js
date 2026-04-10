@@ -15,12 +15,18 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ✅ WRITER WHITELIST (ADD SECOND AUTHOR HERE LATER)
+const WRITER_EMAILS = [
+  "pixieishwp@gmail.com"
+  // "secondauthor@gmail.com"
+];
+
 // DOM
 let splash, authScreen, appScreen, errorMsg, yourBooks;
 
 // MODE + ROLE
 let currentMode = "writer";
-let userRole = "reader"; // default safe
+let userRole = "reader";
 
 // INIT APP
 window.addEventListener("DOMContentLoaded", () => {
@@ -34,7 +40,7 @@ window.addEventListener("DOMContentLoaded", () => {
   appScreen.style.display = "none";
 });
 
-// 🔐 AUTH STATE
+// 🔐 AUTH STATE (DUAL AUTHOR SAFE)
 auth.onAuthStateChanged((user) => {
   setTimeout(async () => {
     if (splash) splash.style.display = "none";
@@ -44,8 +50,22 @@ auth.onAuthStateChanged((user) => {
       appScreen.style.display = "block";
 
       try {
-        const doc = await db.collection("Users").doc(user.uid).get();
-        userRole = doc.exists ? doc.data().role : "reader";
+        // 🔥 WRITER CHECK (WHITELIST)
+        if (WRITER_EMAILS.includes(user.email)) {
+          userRole = "writer";
+
+          await db.collection("Users").doc(user.uid).set({
+            role: "writer"
+          }, { merge: true });
+
+        } else {
+          userRole = "reader";
+
+          await db.collection("Users").doc(user.uid).set({
+            role: "reader"
+          }, { merge: true });
+        }
+
       } catch (e) {
         userRole = "reader";
       }
@@ -60,7 +80,7 @@ auth.onAuthStateChanged((user) => {
   }, 1500);
 });
 
-// 🎭 APPLY ROLE UI (FULL LOCK)
+// 🎭 APPLY ROLE UI
 function applyRoleUI() {
   const writerSection = document.getElementById("writerSection");
   const writerBtn = document.getElementById("writerBtn");
@@ -80,7 +100,7 @@ function applyRoleUI() {
   }
 }
 
-// 🔁 MODE SWITCH (HARD LOCK)
+// 🔁 MODE SWITCH
 function setMode(mode) {
   if (userRole === "reader") {
     currentMode = "reader";
@@ -110,7 +130,7 @@ function login() {
     });
 }
 
-// SIGNUP (AUTO ROLE)
+// SIGNUP
 function signup() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -125,11 +145,7 @@ function signup() {
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
 
-      let role = "reader";
-
-      if (email === "pixieishwp@gmail.com") {
-        role = "writer";
-      }
+      const role = WRITER_EMAILS.includes(email) ? "writer" : "reader";
 
       return db.collection("Users").doc(cred.user.uid).set({
         role: role
@@ -147,7 +163,7 @@ function logout() {
 
 // ADD BOOK
 function addBook() {
-  if (userRole === "reader") return; // 🔒 BLOCK
+  if (userRole === "reader") return;
 
   const user = auth.currentUser;
   if (!user) return;
@@ -169,8 +185,6 @@ function addBook() {
     synopsis,
     userId: user.uid,
     status: "draft",
-    chapterCount: 0,
-    wordCount: 0,
     createdAt: new Date()
   })
   .then(() => {
@@ -186,51 +200,46 @@ function addBook() {
   });
 }
 
-// LOAD BOOKS
+// 📚 LOAD BOOKS (DUAL AUTHOR LOGIC)
 function loadBooks(uid) {
   if (!yourBooks) return;
 
   yourBooks.innerHTML = "Loading...";
 
-  db.collection("books")
-    .where("userId", "==", uid)
-    .get()
+  let query;
+
+  if (userRole === "writer") {
+    // Writers see their own books
+    query = db.collection("books").where("userId", "==", uid);
+  } else {
+    // Readers see ALL published books
+    query = db.collection("books").where("status", "==", "published");
+  }
+
+  query.get()
     .then((snap) => {
       yourBooks.innerHTML = "";
 
       if (snap.empty) {
-        yourBooks.innerHTML = "No books yet.";
+        yourBooks.innerHTML = "No books available.";
         return;
       }
 
       snap.forEach(doc => {
         const data = doc.data();
 
-        const status = data.status || "draft";
-        const chapterCount = data.chapterCount || 0;
-        const wordCount = data.wordCount || 0;
-
-        if (currentMode === "reader" && status !== "published") {
-          return;
-        }
-
         const div = document.createElement("div");
 
-        if (currentMode === "writer") {
+        if (userRole === "writer") {
           div.className = "writer-card";
-
           div.innerHTML = `
-            <div class="card-cover"></div>
             <h4>${data.title}</h4>
             <p>${data.genre || ""}</p>
-            <small>${chapterCount} ch · ${wordCount} words</small>
-            <div class="status ${status}">${status}</div>
+            <div class="status">${data.status}</div>
           `;
         } else {
           div.className = "reader-card";
-
           div.innerHTML = `
-            <div class="card-cover"></div>
             <h4>${data.title}</h4>
             <p>${data.genre || ""}</p>
           `;
@@ -246,13 +255,12 @@ function loadBooks(uid) {
     });
 }
 
-// OPEN BOOK (LOCK INSIDE PAGE)
+// OPEN BOOK
 function openBook(bookId, data) {
   document.getElementById("appScreen").style.display = "none";
   document.getElementById("bookPage").style.display = "block";
 
   document.getElementById("bookTitle").innerText = data.title;
-
   window.currentBookId = bookId;
 
   const writerControls = document.getElementById("writerBookControls");
@@ -274,7 +282,7 @@ function closeBook() {
 
 // ADD CHAPTER
 function addChapter() {
-  if (userRole === "reader") return; // 🔒 BLOCK
+  if (userRole === "reader") return;
 
   const title = document.getElementById("chapterTitle").value.trim();
   const content = document.getElementById("chapterContent").value.trim();
@@ -297,9 +305,6 @@ function addChapter() {
       document.getElementById("chapterContent").value = "";
 
       loadChapters(window.currentBookId);
-    })
-    .catch((e) => {
-      alert(e.message);
     });
 }
 
@@ -326,15 +331,8 @@ function loadChapters(bookId) {
         const div = document.createElement("div");
         div.className = "chapter-card";
 
-        div.innerHTML = `
-          <strong>${index + 1}. ${data.title}</strong>
-        `;
-
+        div.innerHTML = `<strong>${index + 1}. ${data.title}</strong>`;
         chapterList.appendChild(div);
       });
-    })
-    .catch((e) => {
-      chapterList.innerHTML = "Error loading chapters";
-      console.error(e);
     });
 }
