@@ -44,36 +44,44 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // 🔐 AUTH STATE
-auth.onAuthStateChanged((user) => {
-  setTimeout(async () => {
-    if (splash) splash.style.display = "none";
+auth.onAuthStateChanged(async (user) => {
+  // always hide splash first
+  if (splash) splash.style.display = "none";
 
-    if (user) {
-      authScreen.style.display = "none";
-      appScreen.style.display = "block";
+  if (user) {
+    authScreen.style.display = "none";
+    appScreen.style.display = "block";
 
-      try {
-        if (WRITER_EMAILS.includes(user.email)) {
-          userRole = "writer";
-          await db.collection("Users").doc(user.uid).set({ role: "writer" }, { merge: true });
-        } else {
-          userRole = "reader";
-          await db.collection("Users").doc(user.uid).set({ role: "reader" }, { merge: true });
-        }
-      } catch {
+    try {
+      // ✅ WRITER CHECK
+      if (WRITER_EMAILS.includes(user.email)) {
+        userRole = "writer";
+
+        await db.collection("Users").doc(user.uid).set({
+          role: "writer"
+        }, { merge: true });
+
+      } else {
         userRole = "reader";
+
+        await db.collection("Users").doc(user.uid).set({
+          role: "reader"
+        }, { merge: true });
       }
 
-      applyRoleUI();
-      loadBooks(user.uid);
-
-    } else {
-      authScreen.style.display = "block";
-      appScreen.style.display = "none";
+    } catch (e) {
+      console.error(e);
+      userRole = "reader";
     }
-  }, 1500);
-});
 
+    applyRoleUI();
+    loadBooks(user.uid);
+
+  } else {
+    authScreen.style.display = "block";
+    appScreen.style.display = "none";
+  }
+});
 // 🎭 APPLY ROLE UI
 function applyRoleUI() {
   const writerSection = document.getElementById("writerSection");
@@ -119,11 +127,14 @@ function login() {
   }
 
   auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      // ✅ do nothing here
+      // Firebase will handle UI via onAuthStateChanged
+    })
     .catch((e) => {
       errorMsg.innerText = e.message;
     });
 }
-
 // SIGNUP
 function signup() {
   const email = document.getElementById("email").value.trim();
@@ -139,13 +150,15 @@ function signup() {
   auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
       const role = WRITER_EMAILS.includes(email) ? "writer" : "reader";
-      return db.collection("Users").doc(cred.user.uid).set({ role });
+
+      return db.collection("Users").doc(cred.user.uid).set({
+        role: role
+      });
     })
     .catch((e) => {
       errorMsg.innerText = e.message;
     });
 }
-
 // LOGOUT
 function logout() {
   auth.signOut();
